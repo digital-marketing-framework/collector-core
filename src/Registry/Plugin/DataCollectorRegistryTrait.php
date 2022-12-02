@@ -3,9 +3,10 @@
 namespace DigitalMarketingFramework\Collector\Core\Registry\Plugin;
 
 use DataCollector\Core\DataCollector\DataCollectorInterface;
+use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\PluginRegistryTrait;
 
-trait CollectorRegistryTrait
+trait DataCollectorRegistryTrait
 {
     use PluginRegistryTrait;
 
@@ -19,16 +20,16 @@ trait CollectorRegistryTrait
         $this->deletePlugin($keyword, DataCollectorInterface::class);
     }
     
-    public function getDataCollector(string $keyword): ?DataCollectorInterface
+    public function getDataCollector(string $keyword, CollectorConfigurationInterface $configuration): ?DataCollectorInterface
     {
-        return $this->getConfigurationResolver($keyword);
+        return $this->getPlugin($keyword, DataCollectorInterface::class, [$configuration]);
     }
 
     /**
      * @return array<DataCollectorInterface>
      */
-    public function getAllDataCollectors(): array
+    public function getAllDataCollectors(CollectorConfigurationInterface $configuration): array
     {
-        return $this->getAllPlugins(DataCollectorInterface::class);
+        return $this->getAllPlugins(DataCollectorInterface::class, [$configuration]);
     }
 }
