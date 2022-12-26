@@ -8,18 +8,20 @@ use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataCollectorRegist
 use DigitalMarketingFramework\Collector\Core\Service\Collector;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\ConfigurationResolverRegistryTrait;
+use DigitalMarketingFramework\Core\Registry\Plugin\IdentifierCollectorRegistryTrait;
 
 trait RegistryTrait
 {
     use ConfigurationResolverRegistryTrait;
     use DataCollectorRegistryTrait;
+    use IdentifierCollectorRegistryTrait;
 
     protected CollectorInterface $collector;
 
     public function getCollector(): CollectorInterface
     {
         if (!isset($this->collector)) {
-             $this->collector = $this->createObject(Collector::class, [$this, $this->cache]);
+             $this->collector = $this->createObject(Collector::class, [$this]);
         }
         return $this->collector;
     }

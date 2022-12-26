@@ -6,13 +6,18 @@ use DigitalMarketingFramework\Core\Model\Configuration\Configuration;
 
 class CollectorConfiguration extends Configuration implements CollectorConfigurationInterface
 {
+    protected function getCollectorConfiguration(bool $resolveNull = true): array
+    {
+        return $this->getMergedConfiguration($resolveNull)[static::KEY_COLLECTOR] ?? [];
+    }
+
     public function getDataCollectorConfiguration(string $dataCollectorName): array
     {
-        return $this->get(static::KEY_DATA_COLLECTORS, [])[$dataCollectorName] ?? [];
+        return $this->getCollectorConfiguration()[static::KEY_DATA_COLLECTORS][$dataCollectorName] ?? [];
     }
 
     public function dataCollectorExists(string $dataCollectorName): bool
     {
-        return isset($this->get(static::KEY_DATA_COLLECTORS, [])[$dataCollectorName]);
+        return isset($this->getCollectorConfiguration()[static::KEY_DATA_COLLECTORS][$dataCollectorName]);
     }
 }

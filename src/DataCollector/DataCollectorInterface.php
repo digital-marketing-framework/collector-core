@@ -2,22 +2,21 @@
 
 namespace DigitalMarketingFramework\Collector\Core\DataCollector;
 
-use DigitalMarketingFramework\Collector\Core\Exception\InvalidIdentifierException;
+use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResultInterface;
 use DigitalMarketingFramework\Core\Context\ContextInterface;
-use DigitalMarketingFramework\Core\Model\Data\DataInterface;
+use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
+use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
+use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
 use DigitalMarketingFramework\Core\Plugin\PluginInterface;
 
 interface DataCollectorInterface extends PluginInterface
 {
-    /**
-     * @throws InvalidIdentifierException
-     */
-    public function getIdentifier(ContextInterface $context): ?IdentifierInterface;
+    public function addContext(ContextInterface $source, WriteableContextInterface $target): void;
     
     /**
      * @throws InvalidIdentifierException
      */
-    public function getData(IdentifierInterface $identifier): ?DataInterface;
+    public function getData(IdentifierInterface $identifier): ?DataCollectorResultInterface;
 
     public static function getDefaultConfiguration(): array;
 }

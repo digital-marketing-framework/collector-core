@@ -2,73 +2,92 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Service;
 
-use DigitalMarketingFramework\Collector\Core\DataCollector\IdentifierInterface;
-use DigitalMarketingFramework\Collector\Core\Exception\InvalidIdentifierException;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
-use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataCollectorRegistryInterface;
+use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResult;
+use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResultInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
-use DigitalMarketingFramework\Core\Cache\CacheInterface;
+use DigitalMarketingFramework\Core\Cache\DataCacheAwareInterface;
+use DigitalMarketingFramework\Core\Cache\DataCacheAwareTrait;
 use DigitalMarketingFramework\Core\Context\ContextInterface;
+use DigitalMarketingFramework\Core\Context\WriteableContext;
+use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
+use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
+use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
 use DigitalMarketingFramework\Core\Model\Data\Data;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
+use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
+use DigitalMarketingFramework\Core\Utility\CacheUtility;
 
-class Collector implements CollectorInterface
+class Collector implements CollectorInterface, DataCacheAwareInterface
 {
+    use DataCacheAwareTrait;
+    
     public function __construct(
         protected RegistryInterface $registry,
-        protected CacheInterface $cache,
     ) {
-    }
-
-    public function merge(array ...$dataSets): DataInterface
-    {
-        $result = new Data();
-        /** @var DataInterface $data */
-        foreach ($dataSets as $data) {
-            foreach ($data as $key => $value) {
-                if ($result->fieldEmpty($key)) {
-                    $result[$key] = $value;
-                }
-            }
-        }
-        return $result;
     }
 
     protected function lookup(IdentifierInterface $identifier): ?DataInterface
     {
-        $data = $this->cache->fetch($identifier->getCacheKey());
-        if ($data !== null) {
-            return Data::unpack($data);
-        }
-        return null;
+        return $this->cache->fetch($identifier);
     }
 
-    protected function collectData(
-        ContextInterface $context, 
-        CollectorConfigurationInterface $configuration
-    ): DataInterface {
+    protected function fetch(string $keyword, IdentifierInterface $identifier, CollectorConfigurationInterface $configuration): DataCollectorResultInterface
+    {
+        $dataCollector = $this->registry->getDataCollector($keyword, $configuration);
+        if ($dataCollector === null) {
+            throw new DigitalMarketingFrameworkException(sprintf('', $keyword));
+        }
+        $result = $dataCollector->getData($identifier);
+        // "no result" can be cached too, as empty result
+        // TODO can it? should it?
+        if ($result === null) {
+            $result = new DataCollectorResult(new Data(), [$identifier]);
+        }
+        return $result;
+    }
+
+    protected function save(DataInterface $data, array $identifiers): void
+    {
+        $identifier = array_shift($identifiers);
+        $this->cache->store($identifier, $data);
+        foreach ($identifiers as $referenceIdentifier) {
+            $this->cache->storeReference($referenceIdentifier, $identifier);
+        }
+    }
+
+    protected function mapData(DataInterface $data, array|string $dataMap, CollectorConfigurationInterface $configuration): DataInterface
+    {
+        return $this->registry->getDataProcessor($dataMap)
+            ->process($data, ['configuration' => $configuration]);
+    }
+
+    public function collect(ContextInterface $context, CollectorConfigurationInterface $configuration, ?array $dataMap = null): DataInterface
+    {
+        $preparedContext = $this->prepareContext($context, $configuration);
+        $identifierCollectors = $this->registry->getAllIdentifierCollectors($configuration);
+
         $result = new Data();
-        $collectors = $this->registry->getAllDataCollectors($configuration);
-        foreach ($collectors as $collector) {
+        foreach ($identifierCollectors as $identifierCollector) {
             try {
-                // TODO can collectors have multiple identifiers? visitor vs prospect?
-                $identifier = $collector->getIdentifier($context);
+                $identifier = $identifierCollector->getIdentifier($preparedContext);
                 if ($identifier === null) {
                     continue;
                 }
 
+                $identifiers = [$identifier];
                 $data = $this->lookup($identifier);
                 if ($data === null) {
-                    $data = $collector->getData($identifier);
+                    $dataCollectorResult = $this->fetch($identifierCollector->getKeyword(), $identifier, $configuration);
+                    $identifiers = $dataCollectorResult->getIdentifiers();
+                    $data = $dataCollectorResult->getData();
                 }
                 
-                // TODO should a "miss" be saved in the cache?
-                //      - a cache miss shouldn't, obviously
-                //      - but what about a "miss" coming from the collector?
                 if ($data !== null) {
-                    $this->cache->store($identifier->getCacheKey(), $data->pack());
-                    $result = $this->merge($result, $data);
+                    $this->save($data, $identifiers);
+                    $result = CacheUtility::mergeData([$result, $data], override:false);
                 }
+
             } catch (InvalidIdentifierException) {
                 // NOTE: an invalid-identifier exception does not mean that there was no identifier and the user is just not identified
                 //       it means that there was an identifier, which was invalid, which could be a malicious attempt to guess a session ID
@@ -76,29 +95,32 @@ class Collector implements CollectorInterface
                 // TODO just continue with other data collectors, if this one is invalid.
                 //      but how to relay this information so that bot protection can be applied?
                 //      also, should we store this result in the cache?
+                //      maybe emit an event?
                 continue;
             }
         }
+
+        if ($dataMap !== null) {
+            $result = $this->mapData($result, $dataMap, $configuration);
+        }
+
         return $result;
     }
 
-    protected function mapData(DataInterface $data, array|string $dataMap, CollectorConfigurationInterface $configuration): DataInterface
+    public function prepareContext(ContextInterface $context, CollectorConfigurationInterface $configuration): WriteableContextInterface
     {
-        $dataProcessor = $this->registry->getDataProcessor($dataMap);
-        return $dataProcessor->process($data, ['configuration' => $configuration]);
-    }
+        $preparedContext = new WriteableContext();
 
-    public function collect(
-        ContextInterface $context, 
-        CollectorConfigurationInterface $configuration,
-        array|string|null $dataMap = null
-    ): DataInterface {
-        $data = $this->collectData($context, $configuration);
-
-        if ($dataMap !== null) {
-            $data = $this->mapData($data, $dataMap, $configuration);
+        $identifierCollectors = $this->registry->getAllIdentifierCollectors($configuration);
+        foreach ($identifierCollectors as $identifierCollector) {
+            $identifierCollector->addContext($context, $preparedContext);
         }
 
-        return $data;
+        $collectors = $this->registry->getAllDataCollectors($configuration);
+        foreach ($collectors as $collector) {
+            $collector->addContext($context, $preparedContext);
+        }
+
+        return $preparedContext;
     }
 }

@@ -4,6 +4,7 @@ namespace DigitalMarketingFramework\Collector\Core\DataCollector;
 
 use BadMethodCallException;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
+use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResultInterface;
 use DigitalMarketingFramework\Core\Context\ContextInterface;
 use DigitalMarketingFramework\Core\Helper\ConfigurationTrait;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
@@ -11,8 +12,11 @@ use DigitalMarketingFramework\Collector\Core\Plugin\Plugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Core\ConfigurationResolver\Context\ConfigurationResolverContext;
 use DigitalMarketingFramework\Core\ConfigurationResolver\Context\ConfigurationResolverContextInterface;
+use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
+use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
 use DigitalMarketingFramework\Core\Helper\ConfigurationResolverTrait;
 use DigitalMarketingFramework\Core\Model\Data\Data;
+use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
 use DigitalMarketingFramework\Core\Service\DataProcessor;
 
 abstract class DataCollector extends Plugin implements DataCollectorInterface
@@ -39,23 +43,22 @@ abstract class DataCollector extends Plugin implements DataCollectorInterface
         return (bool)$this->getConfig(static::KEY_ENABLED);
     }
 
-    abstract protected function collectIdentifier(ContextInterface $context): ?IdentifierInterface;
-    abstract protected function collect(IdentifierInterface $identifier): ?DataInterface;
+    protected function prepareContext(ContextInterface $source, WriteableContextInterface $target): void
+    {
+    }
+
+    abstract protected function collect(IdentifierInterface $identifier): ?DataCollectorResultInterface;
 
     protected function getConfigurationResolverContext(): ConfigurationResolverContextInterface
     {
         throw new BadMethodCallException('Data collectors should have provided a resolver context already!');
     }
 
-    /**
-     * @throws InvalidIdentifierException
-     */
-    public function getIdentifier(ContextInterface $context): ?IdentifierInterface
+    public function addContext(ContextInterface $source, WriteableContextInterface $target): void
     {
         if ($this->proceed()) {
-            return $this->collectIdentifier($context);
+            $this->prepareContext($source, $target);
         }
-        return null;
     }
 
     protected function mapData(DataInterface $data): DataInterface
@@ -73,16 +76,16 @@ abstract class DataCollector extends Plugin implements DataCollectorInterface
     /**
      * @throws InvalidIdentifierException
      */
-    public function getData(IdentifierInterface $identifier): ?DataInterface
+    public function getData(IdentifierInterface $identifier): ?DataCollectorResultInterface
     {
-        $data = null;
+        $result = null;
         if ($this->proceed()) {
-            $data = $this->collect($identifier);
-            if ($data !== null) {
-                $data = $this->mapData($data);
+            $result = $this->collect($identifier);
+            if ($result !== null) {
+                $result->setData($this->mapData($result->getData()));
             }
         }
-        return $data;
+        return $result;
     }
 
     public static function getDefaultConfiguration(): array
