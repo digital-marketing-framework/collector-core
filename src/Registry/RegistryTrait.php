@@ -12,9 +12,7 @@ use DigitalMarketingFramework\Core\Registry\Plugin\IdentifierCollectorRegistryTr
 
 trait RegistryTrait
 {
-    use ConfigurationResolverRegistryTrait;
     use DataCollectorRegistryTrait;
-    use IdentifierCollectorRegistryTrait;
 
     protected CollectorInterface $collector;
 
