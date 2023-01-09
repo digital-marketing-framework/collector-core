@@ -9,6 +9,8 @@ use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 
 interface CollectorInterface
 {
-    public function collect(ContextInterface $context, CollectorConfigurationInterface $configuration, ?array $dataMap = null): DataInterface;
+    public function collect(CollectorConfigurationInterface $configuration, array|string|null $dataMap = null): DataInterface;
     public function prepareContext(ContextInterface $context, CollectorConfigurationInterface $configuration): WriteableContextInterface;
+
+    public static function getDefaultConfiguration(): array;
 }

@@ -11,5 +11,4 @@ interface RegistryInterface extends
     DataCollectorRegistryInterface
 {
     public function getCollector(): CollectorInterface;
-    public function getDefaultConfiguration(): array;
 }

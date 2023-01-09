@@ -8,6 +8,8 @@ use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResultInt
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Core\Cache\DataCacheAwareInterface;
 use DigitalMarketingFramework\Core\Cache\DataCacheAwareTrait;
+use DigitalMarketingFramework\Core\Context\ContextAwareInterface;
+use DigitalMarketingFramework\Core\Context\ContextAwareTrait;
 use DigitalMarketingFramework\Core\Context\ContextInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContext;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
@@ -18,9 +20,10 @@ use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
 use DigitalMarketingFramework\Core\Utility\CacheUtility;
 
-class Collector implements CollectorInterface, DataCacheAwareInterface
+class Collector implements CollectorInterface, DataCacheAwareInterface, ContextAwareInterface
 {
     use DataCacheAwareTrait;
+    use ContextAwareTrait;
     
     public function __construct(
         protected RegistryInterface $registry,
@@ -62,9 +65,9 @@ class Collector implements CollectorInterface, DataCacheAwareInterface
             ->process($data, ['configuration' => $configuration]);
     }
 
-    public function collect(ContextInterface $context, CollectorConfigurationInterface $configuration, ?array $dataMap = null): DataInterface
+    public function collect(CollectorConfigurationInterface $configuration, array|string|null $dataMap = null): DataInterface
     {
-        $preparedContext = $this->prepareContext($context, $configuration);
+        $preparedContext = $this->prepareContext($this->context, $configuration);
         $identifierCollectors = $this->registry->getAllIdentifierCollectors($configuration);
 
         $result = new Data();
@@ -96,6 +99,8 @@ class Collector implements CollectorInterface, DataCacheAwareInterface
                 //      but how to relay this information so that bot protection can be applied?
                 //      also, should we store this result in the cache?
                 //      maybe emit an event?
+
+                // TODO maybe throw the exception if all data collectors failed?
                 continue;
             }
         }
@@ -122,5 +127,10 @@ class Collector implements CollectorInterface, DataCacheAwareInterface
         }
 
         return $preparedContext;
+    }
+
+    public static function getDefaultConfiguration(): array
+    {
+        return [];
     }
 }

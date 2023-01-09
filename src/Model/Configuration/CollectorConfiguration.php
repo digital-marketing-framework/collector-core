@@ -6,7 +6,7 @@ use DigitalMarketingFramework\Core\Model\Configuration\Configuration;
 
 class CollectorConfiguration extends Configuration implements CollectorConfigurationInterface
 {
-    protected function getCollectorConfiguration(bool $resolveNull = true): array
+    public function getCollectorConfiguration(bool $resolveNull = true): array
     {
         return $this->getMergedConfiguration($resolveNull)[static::KEY_COLLECTOR] ?? [];
     }

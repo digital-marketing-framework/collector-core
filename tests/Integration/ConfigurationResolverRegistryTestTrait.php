@@ -2,7 +2,7 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Tests\Integration;
 
-use DigitalMarketingFramework\Collector\Core\ConfigurationResolverInitialization;
+use DigitalMarketingFramework\Collector\Core\CorePluginInitialization;
 use DigitalMarketingFramework\Core\Registry\Plugin\ConfigurationResolverRegistryInterface;
 
 trait ConfigurationResolverRegistryTestTrait // extends \DigitalMarketingFramework\Core\Tests\Integration\RegistryTestTrait
@@ -12,6 +12,6 @@ trait ConfigurationResolverRegistryTestTrait // extends \DigitalMarketingFramewo
     protected function initRegistry(): void
     {
         parent::initRegistry();
-        ConfigurationResolverInitialization::initialize($this->registry);
+        CorePluginInitialization::initialize($this->registry);
     }
 }
