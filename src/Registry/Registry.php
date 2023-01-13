@@ -5,12 +5,14 @@ namespace DigitalMarketingFramework\Collector\Core\Registry;
 use DigitalMarketingFramework\Collector\Core\DataCollector\DataCollectorInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataCollectorRegistryTrait;
+use DigitalMarketingFramework\Collector\Core\Registry\Service\InvalidIdentifierHandlerRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Service\Collector;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorInterface;
 use DigitalMarketingFramework\Core\Registry\Registry as CoreRegistry;
 
 class Registry extends CoreRegistry implements RegistryInterface
 {
+    use InvalidIdentifierHandlerRegistryTrait;
     use DataCollectorRegistryTrait;
 
     protected CollectorInterface $collector;

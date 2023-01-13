@@ -18,20 +18,26 @@ use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
 use DigitalMarketingFramework\Core\Helper\ConfigurationResolverTrait;
+use DigitalMarketingFramework\Core\Log\LoggerAwareInterface;
+use DigitalMarketingFramework\Core\Log\LoggerAwareTrait;
 use DigitalMarketingFramework\Core\Model\Data\Data;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
 use DigitalMarketingFramework\Core\Utility\CacheUtility;
 
-class Collector implements CollectorInterface, DataCacheAwareInterface, ContextAwareInterface
+class Collector implements CollectorInterface, DataCacheAwareInterface, ContextAwareInterface, LoggerAwareInterface
 {
     use DataCacheAwareTrait;
     use ContextAwareTrait;
     use ConfigurationResolverTrait;
+    use LoggerAwareTrait;
+
+    protected InvalidIdentifierHandlerInterface $invalidIdentifierHandler;
 
     public function __construct(
         protected RegistryInterface $registry,
     ) {
+        $this->invalidIdentifierHandler = $registry->getInvalidIdentifierHandler();
     }
 
     protected function lookup(IdentifierInterface $identifier): ?DataInterface
@@ -78,6 +84,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         $preparedContext = $this->prepareContext($this->context, $configuration);
         $identifierCollectors = $this->registry->getAllIdentifierCollectors($configuration);
 
+        $invalidIdentifier = false;
         $result = new Data();
         foreach ($identifierCollectors as $identifierCollector) {
             try {
@@ -99,18 +106,19 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
                     $result = CacheUtility::mergeData([$result, $data], override:false);
                 }
 
-            } catch (InvalidIdentifierException) {
+            } catch (InvalidIdentifierException $e) {
                 // NOTE: an invalid-identifier exception does not mean that there was no identifier and the user is just not identified
                 //       it means that there was an identifier, which was invalid, which could be a malicious attempt to guess a session ID
-
-                // TODO just continue with other data collectors, if this one is invalid.
-                //      but how to relay this information so that bot protection can be applied?
-                //      also, should we store this result in the cache?
-                //      maybe emit an event?
-
-                // TODO maybe throw the exception if all data collectors failed?
+                $this->logger->info($e->getMessage());
+                $invalidIdentifier = true;
                 continue;
             }
+        }
+
+        if ($invalidIdentifier) {
+            $this->invalidIdentifierHandler->handleInvalidIdentifier($this->context);
+        } else {
+            $this->invalidIdentifierHandler->handleValidIdentifier($this->context);
         }
 
         if ($dataMap !== null) {
