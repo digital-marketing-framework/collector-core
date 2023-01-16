@@ -9,7 +9,6 @@ use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Core\Cache\DataCacheAwareInterface;
 use DigitalMarketingFramework\Core\Cache\DataCacheAwareTrait;
 use DigitalMarketingFramework\Core\ConfigurationResolver\Context\ConfigurationResolverContext;
-use DigitalMarketingFramework\Core\ConfigurationResolver\Context\ConfigurationResolverContextInterface;
 use DigitalMarketingFramework\Core\Context\ContextAwareInterface;
 use DigitalMarketingFramework\Core\Context\ContextAwareTrait;
 use DigitalMarketingFramework\Core\Context\ContextInterface;
@@ -79,11 +78,13 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         return $mapped;
     }
 
-    public function collect(CollectorConfigurationInterface $configuration, array|string|null $dataMap = null): DataInterface
+    public function collect(CollectorConfigurationInterface $configuration, array|string|null $dataMap = null, ?WriteableContextInterface $preparedContext = null): DataInterface
     {
-        $preparedContext = $this->prepareContext($this->context, $configuration);
-        $identifierCollectors = $this->registry->getAllIdentifierCollectors($configuration);
+        if ($preparedContext === null) {
+            $preparedContext = $this->prepareContext($configuration);
+        }
 
+        $identifierCollectors = $this->registry->getAllIdentifierCollectors($configuration);
         $invalidIdentifier = false;
         $result = new Data();
         foreach ($identifierCollectors as $identifierCollector) {
@@ -121,6 +122,10 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
             $this->invalidIdentifierHandler->handleValidIdentifier($this->context);
         }
 
+        if ($dataMap === null) {
+            $dataMap = $configuration->getCollectorConfiguration()[static::KEY_DEFAULT_MAP] ?? static::DEFAULT_DEFAULT_MAP;
+        }
+
         if ($dataMap !== null) {
             $result = $this->mapData($result, $dataMap, $configuration);
         }
@@ -128,25 +133,29 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         return $result;
     }
 
-    public function prepareContext(ContextInterface $context, CollectorConfigurationInterface $configuration): WriteableContextInterface
+    public function prepareContext(CollectorConfigurationInterface $configuration, ?WriteableContextInterface $context = null): WriteableContextInterface
     {
-        $preparedContext = new WriteableContext();
+        if ($context === null) {
+            $context = new WriteableContext();
+        }
 
         $identifierCollectors = $this->registry->getAllIdentifierCollectors($configuration);
         foreach ($identifierCollectors as $identifierCollector) {
-            $identifierCollector->addContext($context, $preparedContext);
+            $identifierCollector->addContext($this->context, $context);
         }
 
         $collectors = $this->registry->getAllDataCollectors($configuration);
         foreach ($collectors as $collector) {
-            $collector->addContext($context, $preparedContext);
+            $collector->addContext($this->context, $context);
         }
 
-        return $preparedContext;
+        return $context;
     }
 
     public static function getDefaultConfiguration(): array
     {
-        return [];
+        return [
+            static::KEY_DEFAULT_MAP => static::DEFAULT_DEFAULT_MAP,
+        ];
     }
 }
