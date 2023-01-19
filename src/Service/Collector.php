@@ -78,8 +78,12 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         return $mapped;
     }
 
-    public function collect(CollectorConfigurationInterface $configuration, array|string|null $dataMap = null, ?WriteableContextInterface $preparedContext = null): DataInterface
-    {
+    public function collect(
+        CollectorConfigurationInterface $configuration,
+        array|string|null $dataMap = null,
+        ?WriteableContextInterface $preparedContext = null,
+        bool $invalidIdentifierHandling = false
+    ): DataInterface {
         if ($preparedContext === null) {
             $preparedContext = $this->prepareContext($configuration);
         }
@@ -116,10 +120,12 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
             }
         }
 
-        if ($invalidIdentifier) {
-            $this->invalidIdentifierHandler->handleInvalidIdentifier($this->context);
-        } else {
-            $this->invalidIdentifierHandler->handleValidIdentifier($this->context);
+        if ($invalidIdentifierHandling) {
+            if ($invalidIdentifier) {
+                $this->invalidIdentifierHandler->handleInvalidIdentifier($this->context);
+            } else {
+                $this->invalidIdentifierHandler->handleValidIdentifier($this->context);
+            }
         }
 
         if ($dataMap === null) {
@@ -133,8 +139,10 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         return $result;
     }
 
-    public function prepareContext(CollectorConfigurationInterface $configuration, ?WriteableContextInterface $context = null): WriteableContextInterface
-    {
+    public function prepareContext(
+        CollectorConfigurationInterface $configuration,
+        ?WriteableContextInterface $context = null
+    ): WriteableContextInterface {
         if ($context === null) {
             $context = new WriteableContext();
         }
