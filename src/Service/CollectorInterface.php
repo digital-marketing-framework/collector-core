@@ -8,12 +8,10 @@ use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 
 interface CollectorInterface
 {
-    public const KEY_DEFAULT_MAP = 'defaultMap';
-    public const DEFAULT_DEFAULT_MAP = null;
+    public const KEY_DATA_MAP = 'dataMap';
 
     public function collect(
         CollectorConfigurationInterface $configuration,
-        array|string|null $dataMap = null,
         ?WriteableContextInterface $preparedContext = null,
         bool $invalidIdentifierHandling = false
     ): DataInterface;

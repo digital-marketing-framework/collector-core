@@ -8,15 +8,15 @@ use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResultInt
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Core\Cache\DataCacheAwareInterface;
 use DigitalMarketingFramework\Core\Cache\DataCacheAwareTrait;
-use DigitalMarketingFramework\Core\ConfigurationResolver\Context\ConfigurationResolverContext;
 use DigitalMarketingFramework\Core\Context\ContextAwareInterface;
 use DigitalMarketingFramework\Core\Context\ContextAwareTrait;
-use DigitalMarketingFramework\Core\Context\ContextInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContext;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
+use DigitalMarketingFramework\Core\DataProcessor\DataProcessor;
+use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
+use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
-use DigitalMarketingFramework\Core\Helper\ConfigurationResolverTrait;
 use DigitalMarketingFramework\Core\Log\LoggerAwareInterface;
 use DigitalMarketingFramework\Core\Log\LoggerAwareTrait;
 use DigitalMarketingFramework\Core\Model\Data\Data;
@@ -24,12 +24,12 @@ use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
 use DigitalMarketingFramework\Core\Utility\CacheUtility;
 
-class Collector implements CollectorInterface, DataCacheAwareInterface, ContextAwareInterface, LoggerAwareInterface
+class Collector implements CollectorInterface, DataCacheAwareInterface, ContextAwareInterface, LoggerAwareInterface, DataProcessorAwareInterface
 {
     use DataCacheAwareTrait;
     use ContextAwareTrait;
-    use ConfigurationResolverTrait;
     use LoggerAwareTrait;
+    use DataProcessorAwareTrait;
 
     protected InvalidIdentifierHandlerInterface $invalidIdentifierHandler;
 
@@ -68,19 +68,8 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         }
     }
 
-    protected function mapData(DataInterface $data, array|string $dataMap, CollectorConfigurationInterface $configuration): DataInterface
-    {
-        $context = new ConfigurationResolverContext($data, ['configuration' => $configuration]);
-        $mapped = $this->resolveContent(['dataMap' => $dataMap], $context);
-        if ($mapped === null) {
-            return new Data([]);
-        }
-        return $mapped;
-    }
-
     public function collect(
         CollectorConfigurationInterface $configuration,
-        array|string|null $dataMap = null,
         ?WriteableContextInterface $preparedContext = null,
         bool $invalidIdentifierHandling = false
     ): DataInterface {
@@ -128,13 +117,12 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
             }
         }
 
-        if ($dataMap === null) {
-            $dataMap = $configuration->getCollectorConfiguration()[static::KEY_DEFAULT_MAP] ?? static::DEFAULT_DEFAULT_MAP;
+        $map = $configuration->getCollectorConfiguration()[static::KEY_DATA_MAP] ?? null;
+        if ($map === null) {
+            throw new DigitalMarketingFrameworkException('No collector map configured.');
         }
 
-        if ($dataMap !== null) {
-            $result = $this->mapData($result, $dataMap, $configuration);
-        }
+        $result = $this->dataProcessor->processDataMapper($map, $result, $configuration);
 
         return $result;
     }
@@ -163,7 +151,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
     public static function getDefaultConfiguration(): array
     {
         return [
-            static::KEY_DEFAULT_MAP => static::DEFAULT_DEFAULT_MAP,
+            static::KEY_DATA_MAP => DataProcessor::getDefaultDataMapperConfiguration(),
         ];
     }
 }

@@ -2,15 +2,15 @@
 
 namespace DigitalMarketingFramework\Collector\Core;
 
-use DigitalMarketingFramework\Collector\Core\ConfigurationResolver\ContentResolver\MaskedContentResolver;
-use DigitalMarketingFramework\Core\ConfigurationResolver\ContentResolver\ContentResolverInterface;
+use DigitalMarketingFramework\Collector\Core\DataProcessor\ValueModifier\MaskedValueModifier;
+use DigitalMarketingFramework\Core\DataProcessor\ValueModifier\ValueModifierInterface;
 use DigitalMarketingFramework\Core\PluginInitialization;
 
 class CorePluginInitialization extends PluginInitialization
 {
     const PLUGINS = [
-        ContentResolverInterface::class => [
-            MaskedContentResolver::class,
+        ValueModifierInterface::class => [
+            MaskedValueModifier::class,
         ],
     ];
 }
