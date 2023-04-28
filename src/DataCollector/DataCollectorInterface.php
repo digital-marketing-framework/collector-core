@@ -3,6 +3,7 @@
 namespace DigitalMarketingFramework\Collector\Core\DataCollector;
 
 use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResultInterface;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\Context\ContextInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
@@ -19,4 +20,5 @@ interface DataCollectorInterface extends PluginInterface
     public function getData(IdentifierInterface $identifier): ?DataCollectorResultInterface;
 
     public static function getDefaultConfiguration(): array;
+    public static function getSchema(): SchemaInterface;
 }

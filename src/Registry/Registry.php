@@ -3,11 +3,15 @@
 namespace DigitalMarketingFramework\Collector\Core\Registry;
 
 use DigitalMarketingFramework\Collector\Core\DataCollector\DataCollectorInterface;
+use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataCollectorRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\InvalidIdentifierHandlerRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Service\Collector;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorInterface;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\Custom\ValueSchema;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\SchemaDocument;
 use DigitalMarketingFramework\Core\Registry\Registry as CoreRegistry;
 
 class Registry extends CoreRegistry implements RegistryInterface
@@ -25,15 +29,6 @@ class Registry extends CoreRegistry implements RegistryInterface
         return $this->collector;
     }
 
-    public function getDataCollectorDefaultConfigurations(): array
-    {
-        $result = [];
-        foreach ($this->pluginClasses[DataCollectorInterface::class] ?? [] as $key => $class) {
-            $result[$key] = $class::getDefaultConfiguration();
-        }
-        return $result;
-    }
-
     public function getCollectorDefaultConfiguration(): array
     {
         $defaultCollectorConfiguration = Collector::getDefaultConfiguration();
@@ -41,15 +36,18 @@ class Registry extends CoreRegistry implements RegistryInterface
         return $defaultCollectorConfiguration;
     }
 
-    public function getDefaultConfiguration(): array
+    public function addDefaultConfiguration(array &$configuration): void
     {
-        $defaultConfiguration = parent::getDefaultConfiguration();
-        $defaultConfiguration[CollectorConfigurationInterface::KEY_COLLECTOR] = $this->getCollectorDefaultConfiguration();
-        return $defaultConfiguration;
+        parent::addDefaultConfiguration($configuration);
+        $configuration[CollectorConfiguration::KEY_COLLECTOR] = $this->getCollectorDefaultConfiguration();
     }
 
-    public function getConfigurationSchema(): array
+    public function addConfigurationSchema(SchemaDocument $schemaDocument): void
     {
-        return [];
+        parent::addConfigurationSchema($schemaDocument);
+        $collectorSchema = new ContainerSchema();
+        $collectorSchema->addProperty(CollectorConfiguration::KEY_DATA_COLLECTORS, $this->getDataCollectorSchema());
+
+        $schemaDocument->getMainSchema()->addProperty(CollectorConfiguration::KEY_COLLECTOR, $collectorSchema);
     }
 }

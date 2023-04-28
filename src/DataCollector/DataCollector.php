@@ -2,7 +2,6 @@
 
 namespace DigitalMarketingFramework\Collector\Core\DataCollector;
 
-use BadMethodCallException;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResultInterface;
 use DigitalMarketingFramework\Core\Context\ContextInterface;
@@ -84,5 +83,13 @@ abstract class DataCollector extends Plugin implements DataCollectorInterface, D
             static::KEY_ENABLED => static::DEFAULT_ENABLED,
             static::KEY_DATA_MAP => DataProcessor::getDefaultConfiguration(),
         ];
+    }
+
+    public static function getSchema(): SchemaInterface
+    {
+        $schema = new ContainerSchema();
+        $schema->addProperty(static::KEY_ENABLED, new BooleanSchema(static::DEFAULT_ENABLED));
+        $schema->addProperty(static::KEY_DATA_MAP, new CustomSchema(DataMapperSchema::TYPE));
+        return $schema;
     }
 }

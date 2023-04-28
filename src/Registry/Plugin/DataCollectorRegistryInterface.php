@@ -3,6 +3,7 @@
 namespace DigitalMarketingFramework\Collector\Core\Registry\Plugin;
 
 use DigitalMarketingFramework\Collector\Core\DataCollector\DataCollectorInterface;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\PluginRegistryInterface;
 
@@ -21,4 +22,5 @@ interface DataCollectorRegistryInterface extends PluginRegistryInterface
      * @return array<mixed>
      */
     public function getDataCollectorDefaultConfigurations(): array;
+    public function getDataCollectorSchema(): SchemaInterface;
 }
