@@ -2,11 +2,14 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Service;
 
-use DigitalMarketingFramework\Core\Context\ContextInterface;
-
 class StaticInvalidIdentifierHandler extends InvalidIdentifierHandler
 {
     protected const PENALTY = 5;
+
+    protected function enabled(): bool
+    {
+        return true;
+    }
 
     protected function getPenalty(int $invalidRequestCount): int
     {
