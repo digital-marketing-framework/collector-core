@@ -14,11 +14,11 @@ use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\C
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\Plugin\DataProcessor\DataMapperSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
+use DigitalMarketingFramework\Core\DataProcessor\DataProcessor;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
 use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
-use DigitalMarketingFramework\Core\Service\DataProcessor;
 
 abstract class DataCollector extends Plugin implements DataCollectorInterface, DataProcessorAwareInterface
 {
@@ -81,7 +81,7 @@ abstract class DataCollector extends Plugin implements DataCollectorInterface, D
     {
         return [
             static::KEY_ENABLED => static::DEFAULT_ENABLED,
-            static::KEY_DATA_MAP => DataProcessor::getDefaultConfiguration(),
+            static::KEY_DATA_MAP => DataProcessor::getDefaultDataMapperConfiguration(),
         ];
     }
 
