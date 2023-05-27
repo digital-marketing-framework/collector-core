@@ -18,9 +18,5 @@ interface DataCollectorRegistryInterface extends PluginRegistryInterface
      */
     public function getAllDataCollectors(ConfigurationInterface $configuration): array;
 
-    /**
-     * @return array<mixed>
-     */
-    public function getDataCollectorDefaultConfigurations(): array;
     public function getDataCollectorSchema(): SchemaInterface;
 }

@@ -36,17 +36,12 @@ trait DataCollectorRegistryTrait
         return $this->getAllPlugins(DataCollectorInterface::class, [$configuration]);
     }
 
-    public function getDataCollectorDefaultConfigurations(): array
-    {
-        $result = [];
-        foreach ($this->pluginClasses[DataCollectorInterface::class] ?? [] as $key => $class) {
-            $result[$key] = $class::getDefaultConfiguration();
-        }
-        return $result;
-    }
-
     public function getDataCollectorSchema(): SchemaInterface
     {
-        return new DataCollectorSchema($this);
+        $schema = new DataCollectorSchema();
+        foreach ($this->pluginClasses[DataCollectorInterface::class] ?? [] as $key => $class) {
+            $schema->addItem($key, $class::getSchema());
+        }
+        return $schema;
     }
 }

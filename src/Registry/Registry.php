@@ -10,7 +10,6 @@ use DigitalMarketingFramework\Collector\Core\Registry\Service\InvalidIdentifierH
 use DigitalMarketingFramework\Collector\Core\Service\Collector;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorInterface;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\Custom\ValueSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\SchemaDocument;
 use DigitalMarketingFramework\Core\Registry\Registry as CoreRegistry;
 
@@ -34,12 +33,6 @@ class Registry extends CoreRegistry implements RegistryInterface
         $defaultCollectorConfiguration = Collector::getDefaultConfiguration();
         $defaultCollectorConfiguration[CollectorConfigurationInterface::KEY_DATA_COLLECTORS] = $this->getDataCollectorDefaultConfigurations();
         return $defaultCollectorConfiguration;
-    }
-
-    public function addDefaultConfiguration(array &$configuration): void
-    {
-        parent::addDefaultConfiguration($configuration);
-        $configuration[CollectorConfiguration::KEY_COLLECTOR] = $this->getCollectorDefaultConfiguration();
     }
 
     public function addConfigurationSchema(SchemaDocument $schemaDocument): void
