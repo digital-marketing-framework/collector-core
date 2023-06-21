@@ -13,12 +13,11 @@ use DigitalMarketingFramework\Core\Plugin\PluginInterface;
 interface DataCollectorInterface extends PluginInterface
 {
     public function addContext(ContextInterface $source, WriteableContextInterface $target): void;
-    
+
     /**
      * @throws InvalidIdentifierException
      */
     public function getData(IdentifierInterface $identifier): ?DataCollectorResultInterface;
 
-    public static function getDefaultConfiguration(): array;
     public static function getSchema(): SchemaInterface;
 }

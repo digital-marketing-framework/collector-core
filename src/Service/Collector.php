@@ -12,9 +12,6 @@ use DigitalMarketingFramework\Core\Context\ContextAwareInterface;
 use DigitalMarketingFramework\Core\Context\ContextAwareTrait;
 use DigitalMarketingFramework\Core\Context\WriteableContext;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
-use DigitalMarketingFramework\Core\DataProcessor\DataProcessor;
-use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
-use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
 use DigitalMarketingFramework\Core\Log\LoggerAwareInterface;
@@ -24,12 +21,11 @@ use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
 use DigitalMarketingFramework\Core\Utility\CacheUtility;
 
-class Collector implements CollectorInterface, DataCacheAwareInterface, ContextAwareInterface, LoggerAwareInterface, DataProcessorAwareInterface
+class Collector implements CollectorInterface, DataCacheAwareInterface, ContextAwareInterface, LoggerAwareInterface
 {
     use DataCacheAwareTrait;
     use ContextAwareTrait;
     use LoggerAwareTrait;
-    use DataProcessorAwareTrait;
 
     protected InvalidIdentifierHandlerInterface $invalidIdentifierHandler;
 
@@ -117,13 +113,6 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
             }
         }
 
-        $map = $configuration->getCollectorConfiguration()[static::KEY_DATA_MAP] ?? null;
-        if ($map === null) {
-            throw new DigitalMarketingFrameworkException('No collector map configured.');
-        }
-
-        $result = $this->dataProcessor->processDataMapper($map, $result, $configuration);
-
         return $result;
     }
 
@@ -146,12 +135,5 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         }
 
         return $context;
-    }
-
-    public static function getDefaultConfiguration(): array
-    {
-        return [
-            static::KEY_DATA_MAP => DataProcessor::getDefaultDataMapperConfiguration(),
-        ];
     }
 }

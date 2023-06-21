@@ -20,4 +20,14 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
     {
         return isset($this->getCollectorConfiguration()[static::KEY_DATA_COLLECTORS][$dataCollectorName]);
     }
+
+    public function dataTransformationExists(string $transformationName): bool
+    {
+        return isset($this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS][$transformationName]);
+    }
+
+    public function getDataTransformationConfiguration(string $transformationName): array
+    {
+        return $this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS][$transformationName] ?? [];
+    }
 }
