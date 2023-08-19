@@ -70,9 +70,9 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
         $schema = new ContainerSchema();
 
         $visibility = new StringSchema(static::DEFAULT_VISIBILITY);
-        $visibility->getAllowedValues()->addValue('disabled');
-        $visibility->getAllowedValues()->addValue('private');
-        $visibility->getAllowedValues()->addValue('public');
+        $visibility->getAllowedValues()->addValue(static::VISIBILITY_DISABLED);
+        $visibility->getAllowedValues()->addValue(static::VISIBILITY_PRIVATE);
+        $visibility->getAllowedValues()->addValue(static::VISIBILITY_PUBLIC);
         $visibility->getRenderingDefinition()->setFormat('select');
         $schema->addProperty(static::KEY_VISIBILITY, $visibility);
 

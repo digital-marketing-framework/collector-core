@@ -39,7 +39,7 @@ trait DataCollectorRegistryTrait
     public function getDataCollectorSchema(): SchemaInterface
     {
         $schema = new DataCollectorSchema();
-        foreach ($this->pluginClasses[DataCollectorInterface::class] ?? [] as $key => $class) {
+        foreach ($this->getAllPluginClasses(DataCollectorInterface::class) as $key => $class) {
             $schema->addItem($key, $class::getSchema());
         }
         return $schema;
