@@ -3,6 +3,7 @@
 namespace DigitalMarketingFramework\Collector\Core\DataTransformation;
 
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\RenderingDefinition\RenderingDefinitionInterface;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\CustomSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\Plugin\DataProcessor\DataMapperSchema;
@@ -73,7 +74,7 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
         $visibility->getAllowedValues()->addValue(static::VISIBILITY_DISABLED);
         $visibility->getAllowedValues()->addValue(static::VISIBILITY_PRIVATE);
         $visibility->getAllowedValues()->addValue(static::VISIBILITY_PUBLIC);
-        $visibility->getRenderingDefinition()->setFormat('select');
+        $visibility->getRenderingDefinition()->setFormat(RenderingDefinitionInterface::FORMAT_SELECT);
         $schema->addProperty(static::KEY_VISIBILITY, $visibility);
 
         $dataTransformationMapper = new CustomSchema(DataMapperSchema::TYPE);
