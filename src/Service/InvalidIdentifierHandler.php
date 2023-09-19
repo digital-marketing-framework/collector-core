@@ -16,8 +16,11 @@ abstract class InvalidIdentifierHandler implements InvalidIdentifierHandlerInter
     }
 
     abstract protected function enabled(): bool;
+
     abstract protected function getPenalty(int $invalidRequestCount): int;
+
     abstract protected function getInvalidRequestCount(): int;
+
     abstract protected function setInvalidRequestCount(int $invalidRequestCount): void;
 
     protected function init(ContextInterface $context): void
@@ -38,8 +41,9 @@ abstract class InvalidIdentifierHandler implements InvalidIdentifierHandlerInter
 
         $invalidRequestCount = $this->getInvalidRequestCount();
         if ($invalid) {
-            $invalidRequestCount++;
+            ++$invalidRequestCount;
         }
+
         $this->setInvalidRequestCount($invalidRequestCount);
 
         if ($invalidRequestCount > 0) {

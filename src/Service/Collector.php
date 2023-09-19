@@ -2,6 +2,7 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Service;
 
+use DigitalMarketingFramework\Collector\Core\DataCollector\DataCollectorInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResult;
 use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResultInterface;
@@ -43,18 +44,23 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
     protected function fetch(string $keyword, IdentifierInterface $identifier, CollectorConfigurationInterface $configuration): DataCollectorResultInterface
     {
         $dataCollector = $this->registry->getDataCollector($keyword, $configuration);
-        if ($dataCollector === null) {
-            throw new DigitalMarketingFrameworkException(sprintf('', $keyword));
+        if (!$dataCollector instanceof DataCollectorInterface) {
+            throw new DigitalMarketingFrameworkException(sprintf('data collector "%s" not found', $keyword));
         }
+
         $result = $dataCollector->getData($identifier);
         // "no result" can be cached too, as empty result
         // TODO can it? should it?
-        if ($result === null) {
+        if (!$result instanceof DataCollectorResultInterface) {
             $result = new DataCollectorResult(new Data(), [$identifier]);
         }
+
         return $result;
     }
 
+    /**
+     * @param array<IdentifierInterface> $identifiers
+     */
     protected function save(DataInterface $data, array $identifiers): void
     {
         $identifier = array_shift($identifiers);
@@ -69,7 +75,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         ?WriteableContextInterface $preparedContext = null,
         bool $invalidIdentifierHandling = false
     ): DataInterface {
-        if ($preparedContext === null) {
+        if (!$preparedContext instanceof WriteableContextInterface) {
             $preparedContext = $this->prepareContext($configuration);
         }
 
@@ -79,23 +85,22 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         foreach ($identifierCollectors as $identifierCollector) {
             try {
                 $identifier = $identifierCollector->getIdentifier($preparedContext);
-                if ($identifier === null) {
+                if (!$identifier instanceof IdentifierInterface) {
                     continue;
                 }
 
                 $identifiers = [$identifier];
                 $data = $this->lookup($identifier);
-                if ($data === null) {
+                if (!$data instanceof DataInterface) {
                     $dataCollectorResult = $this->fetch($identifierCollector->getKeyword(), $identifier, $configuration);
                     $identifiers = $dataCollectorResult->getIdentifiers();
                     $data = $dataCollectorResult->getData();
                 }
 
-                if ($data !== null) {
+                if ($data instanceof DataInterface) {
                     $this->save($data, $identifiers);
-                    $result = CacheUtility::mergeData([$result, $data], override:false);
+                    $result = CacheUtility::mergeData([$result, $data], override: false);
                 }
-
             } catch (InvalidIdentifierException $e) {
                 // NOTE: an invalid-identifier exception does not mean that there was no identifier and the user is just not identified
                 //       it means that there was an identifier, which was invalid, which could be a malicious attempt to guess a session ID
@@ -120,7 +125,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         CollectorConfigurationInterface $configuration,
         ?WriteableContextInterface $context = null
     ): WriteableContextInterface {
-        if ($context === null) {
+        if (!$context instanceof WriteableContextInterface) {
             $context = new WriteableContext();
         }
 

@@ -9,7 +9,7 @@ use DigitalMarketingFramework\Core\Registry\RegistryDomain;
 
 class CollectorCoreInitialization extends Initialization
 {
-    const PLUGINS = [
+    protected const PLUGINS = [
         RegistryDomain::CORE => [
             ValueModifierInterface::class => [
                 MaskedValueModifier::class,

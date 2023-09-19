@@ -6,7 +6,7 @@ trait CollectorAwareTrait
 {
     protected Collector $collector;
 
-    public function setCollector(Collector $collector): void
+    public function setCollector(CollectorInterface $collector): void
     {
         $this->collector = $collector;
     }

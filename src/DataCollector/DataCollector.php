@@ -5,13 +5,13 @@ namespace DigitalMarketingFramework\Collector\Core\DataCollector;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResultInterface;
 use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
-use DigitalMarketingFramework\Core\Context\ContextInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\BooleanSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\CustomSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\Plugin\DataProcessor\DataMapperSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
+use DigitalMarketingFramework\Core\Context\ContextInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
@@ -23,6 +23,7 @@ abstract class DataCollector extends ConfigurablePlugin implements DataCollector
     use DataProcessorAwareTrait;
 
     protected const KEY_ENABLED = 'enabled';
+
     protected const DEFAULT_ENABLED = false;
 
     protected const KEY_DATA_MAP = 'dataMap';
@@ -38,7 +39,7 @@ abstract class DataCollector extends ConfigurablePlugin implements DataCollector
 
     protected function proceed(): bool
     {
-        return (bool)$this->getConfig(static::KEY_ENABLED);
+        return (bool) $this->getConfig(static::KEY_ENABLED);
     }
 
     protected function prepareContext(ContextInterface $source, WriteableContextInterface $target): void
@@ -62,7 +63,7 @@ abstract class DataCollector extends ConfigurablePlugin implements DataCollector
         $result = null;
         if ($this->proceed()) {
             $result = $this->collect($identifier);
-            if ($result !== null) {
+            if ($result instanceof DataCollectorResultInterface) {
                 $data = $this->dataProcessor->processDataMapper(
                     $this->getConfig(static::KEY_DATA_MAP),
                     $result->getData(),
@@ -71,6 +72,7 @@ abstract class DataCollector extends ConfigurablePlugin implements DataCollector
                 $result->setData($data);
             }
         }
+
         return $result;
     }
 
@@ -79,6 +81,7 @@ abstract class DataCollector extends ConfigurablePlugin implements DataCollector
         $schema = new ContainerSchema();
         $schema->addProperty(static::KEY_ENABLED, new BooleanSchema(static::DEFAULT_ENABLED));
         $schema->addProperty(static::KEY_DATA_MAP, new CustomSchema(DataMapperSchema::TYPE));
+
         return $schema;
     }
 }

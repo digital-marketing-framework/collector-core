@@ -21,10 +21,13 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
     use DataProcessorAwareTrait;
 
     public const KEY_VISIBILITY = 'visibility';
+
     public const DEFAULT_VISIBILITY = 'disabled';
 
     public const VISIBILITY_DISABLED = 'disabled';
+
     public const VISIBILITY_PRIVATE = 'private';
+
     public const VISIBILITY_PUBLIC = 'public';
 
     public const KEY_DATA_MAP = 'dataMap';
@@ -38,22 +41,20 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
         if (!$collectorConfiguration->dataTransformationExists($keyword)) {
             throw new DigitalMarketingFrameworkException(sprintf('data transformation "%s" not found', $keyword));
         }
+
         $this->configuration = $collectorConfiguration->getDataTransformationConfiguration($keyword);
     }
 
     public function allowed(): bool
     {
         $visibility = $this->getConfig(static::KEY_VISIBILITY);
-        switch ($visibility) {
-            case static::VISIBILITY_DISABLED:
-                return false;
-            case static::VISIBILITY_PRIVATE:
-                return $this->public ? false : true;
-            case static::VISIBILITY_PUBLIC:
-                return true;
-            default:
-                throw new DigitalMarketingFrameworkException(sprintf('unknow visibility status "%s" for data transformation "%s"', $visibility, $this->keyword));
-        }
+
+        return match ($visibility) {
+            static::VISIBILITY_DISABLED => false,
+            static::VISIBILITY_PRIVATE => !$this->public,
+            static::VISIBILITY_PUBLIC => true,
+            default => throw new DigitalMarketingFrameworkException(sprintf('unknow visibility status "%s" for data transformation "%s"', $visibility, $this->keyword)),
+        };
     }
 
     public function transform(DataInterface $data): DataInterface
@@ -63,6 +64,7 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
         }
 
         $map = $this->getConfig(static::KEY_DATA_MAP);
+
         return $this->dataProcessor->processDataMapper($map, $data, $this->collectorConfiguration);
     }
 

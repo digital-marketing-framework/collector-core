@@ -17,6 +17,7 @@ trait DataTransformationRegistryTrait
     {
         $transformation = $this->createObject(DataTransformation::class, [$keyword, $collectorConfiguration, $public]);
         $this->processPluginAwareness($transformation);
+
         return $transformation;
     }
 }

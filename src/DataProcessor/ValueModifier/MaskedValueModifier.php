@@ -13,6 +13,7 @@ class MaskedValueModifier extends ValueModifier
         if ($value !== null && (string) $value !== '') {
             return GeneralUtility::maskValue((string) $value);
         }
+
         return $value;
     }
 }
