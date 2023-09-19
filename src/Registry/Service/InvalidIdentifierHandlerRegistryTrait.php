@@ -14,6 +14,7 @@ trait InvalidIdentifierHandlerRegistryTrait
         if (!isset($this->invalidIdentifierHandler)) {
             $this->invalidIdentifierHandler = new StaticInvalidIdentifierHandler();
         }
+
         return $this->invalidIdentifierHandler;
     }
 

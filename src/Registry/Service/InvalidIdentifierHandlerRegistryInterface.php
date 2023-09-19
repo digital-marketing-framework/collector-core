@@ -7,5 +7,6 @@ use DigitalMarketingFramework\Collector\Core\Service\InvalidIdentifierHandlerInt
 interface InvalidIdentifierHandlerRegistryInterface
 {
     public function getInvalidIdentifierHandler(): InvalidIdentifierHandlerInterface;
+
     public function setInvalidIdentifierHandler(InvalidIdentifierHandlerInterface $invalidIdentifierHandler): void;
 }

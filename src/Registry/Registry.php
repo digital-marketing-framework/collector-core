@@ -10,9 +10,7 @@ use DigitalMarketingFramework\Collector\Core\Registry\Service\CollectorRegistryT
 use DigitalMarketingFramework\Collector\Core\Registry\Service\InvalidIdentifierHandlerRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\CustomSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\MapSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\Plugin\DataProcessor\DataMapperSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\StringSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\SchemaDocument;
@@ -37,8 +35,8 @@ class Registry extends CoreRegistry implements RegistryInterface
     {
         $transformationName = new StringSchema('transformationName');
         $transformation = DataTransformation::getSchema();
-        $dataTransformations = new MapSchema($transformation, $transformationName);
-        return $dataTransformations;
+
+        return new MapSchema($transformation, $transformationName);
     }
 
     public function addConfigurationSchema(SchemaDocument $schemaDocument): void

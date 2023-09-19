@@ -8,6 +8,7 @@ use DigitalMarketingFramework\Core\Tests\Unit\DataProcessor\ValueModifier\ValueM
 class MaskedValueModifierTest extends ValueModifierTest
 {
     protected const KEYWORD = 'masked';
+
     protected const CLASS_NAME = MaskedValueModifier::class;
 
     public const MODIFY_TEST_CASES = [
@@ -21,11 +22,11 @@ class MaskedValueModifierTest extends ValueModifierTest
 
         [[], []],
         [
-            ['', 'abcd', 'abcdefghij', 'abcdefghij@klmnopq.rst', 'abc@defghijklmnopqrstuv.wxy',],
-            ['', 'a****d', 'ab****hij', 'abcde****q.rst', 'a****pqrstuv.wxy']
+            ['', 'abcd', 'abcdefghij', 'abcdefghij@klmnopq.rst', 'abc@defghijklmnopqrstuv.wxy'],
+            ['', 'a****d', 'ab****hij', 'abcde****q.rst', 'a****pqrstuv.wxy'],
         ],
     ];
-    
+
     public function modifyProvider(): array
     {
         return static::MODIFY_TEST_CASES;

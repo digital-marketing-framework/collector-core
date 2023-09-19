@@ -2,10 +2,10 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Tests\Integration;
 
-use DigitalMarketingFramework\Core\Registry\RegistryDomain;
-use DigitalMarketingFramework\Core\Tests\Integration\RegistryTestTrait;
 use DigitalMarketingFramework\Collector\Core\CollectorCoreInitialization;
 use DigitalMarketingFramework\Collector\Core\Registry\Registry;
+use DigitalMarketingFramework\Core\Registry\RegistryDomain;
+use DigitalMarketingFramework\Core\Tests\Integration\RegistryTestTrait;
 
 trait CollectorRegistryTestTrait // extends \PHPUnit\Framework\TestCase
 {

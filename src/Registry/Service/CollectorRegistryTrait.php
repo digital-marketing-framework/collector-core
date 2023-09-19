@@ -16,6 +16,7 @@ trait CollectorRegistryTrait
         if (!isset($this->collector)) {
             $this->collector = $this->createObject(Collector::class, [$this]);
         }
+
         return $this->collector;
     }
 
