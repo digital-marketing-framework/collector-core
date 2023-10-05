@@ -39,7 +39,7 @@ abstract class DataCollector extends ConfigurablePlugin implements DataCollector
 
     protected function proceed(): bool
     {
-        return (bool) $this->getConfig(static::KEY_ENABLED);
+        return (bool)$this->getConfig(static::KEY_ENABLED);
     }
 
     protected function prepareContext(ContextInterface $source, WriteableContextInterface $target): void

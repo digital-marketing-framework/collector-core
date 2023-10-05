@@ -10,8 +10,8 @@ class MaskedValueModifier extends ValueModifier
 {
     protected function modifyValue(null|string|ValueInterface $value): null|string|ValueInterface
     {
-        if ($value !== null && (string) $value !== '') {
-            return GeneralUtility::maskValue((string) $value);
+        if ($value !== null && (string)$value !== '') {
+            return GeneralUtility::maskValue((string)$value);
         }
 
         return $value;
