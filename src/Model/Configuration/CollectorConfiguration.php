@@ -31,4 +31,9 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
     {
         return MapUtility::flatten($this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS])[$transformationName] ?? [];
     }
+
+    public function getDefaultDataTransformationName(): string
+    {
+        return $this->getCollectorConfiguration()[static::KEY_DEFAULT_DATA_TRANSFORMATION] ?? '';
+    }
 }

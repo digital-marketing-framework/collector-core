@@ -12,6 +12,8 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
 
     public const KEY_DATA_TRANSFORMATIONS = 'dataTransformations';
 
+    public const KEY_DEFAULT_DATA_TRANSFORMATION = 'defaultTransformation';
+
     /**
      * @return array<string,mixed>
      */
@@ -30,4 +32,6 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
      * @return array<string,mixed>
      */
     public function getDataTransformationConfiguration(string $transformationName): array;
+
+    public function getDefaultDataTransformationName(): string;
 }
