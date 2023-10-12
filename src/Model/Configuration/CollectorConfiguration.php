@@ -3,6 +3,7 @@
 namespace DigitalMarketingFramework\Collector\Core\Model\Configuration;
 
 use DigitalMarketingFramework\Core\Model\Configuration\Configuration;
+use DigitalMarketingFramework\Core\Utility\MapUtility;
 
 class CollectorConfiguration extends Configuration implements CollectorConfigurationInterface
 {
@@ -23,11 +24,11 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
 
     public function dataTransformationExists(string $transformationName): bool
     {
-        return isset($this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS][$transformationName]);
+        return isset(MapUtility::flatten($this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS])[$transformationName]);
     }
 
     public function getDataTransformationConfiguration(string $transformationName): array
     {
-        return $this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS][$transformationName] ?? [];
+        return MapUtility::flatten($this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS])[$transformationName] ?? [];
     }
 }
