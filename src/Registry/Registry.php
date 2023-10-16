@@ -52,8 +52,7 @@ class Registry extends CoreRegistry implements RegistryInterface
         $defaultDataTransformation->getAllowedValues()->addValue('', '[none]');
         $defaultDataTransformation->getAllowedValues()->addReference(
             sprintf(
-                '%s/%s/*/%s',
-                CollectorConfigurationInterface::KEY_COLLECTOR,
+                '../%s/*/%s',
                 CollectorConfigurationInterface::KEY_DATA_TRANSFORMATIONS,
                 MapUtility::KEY_KEY
             ),
