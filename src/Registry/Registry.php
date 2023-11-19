@@ -56,8 +56,7 @@ class Registry extends CoreRegistry implements RegistryInterface
                 CollectorConfigurationInterface::KEY_DATA_TRANSFORMATIONS,
                 MapUtility::KEY_KEY
             ),
-            ScalarValues::REFERENCE_TYPE_VALUE,
-            'Default Transformation'
+            ScalarValues::REFERENCE_TYPE_VALUE
         );
         $defaultDataTransformation->getRenderingDefinition()->setFormat(RenderingDefinitionInterface::FORMAT_SELECT);
         $collectorSchema->addProperty(CollectorConfigurationInterface::KEY_DEFAULT_DATA_TRANSFORMATION, $defaultDataTransformation);
