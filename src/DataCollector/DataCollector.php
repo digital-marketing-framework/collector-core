@@ -79,6 +79,12 @@ abstract class DataCollector extends ConfigurablePlugin implements DataCollector
     public static function getSchema(): SchemaInterface
     {
         $schema = new ContainerSchema();
+
+        $label = static::getLabel();
+        if ($label !== null) {
+            $schema->getRenderingDefinition()->setLabel($label);
+        }
+
         $schema->addProperty(static::KEY_ENABLED, new BooleanSchema(static::DEFAULT_ENABLED));
         $schema->addProperty(static::KEY_DATA_MAP, new CustomSchema(DataMapperSchema::TYPE));
 
