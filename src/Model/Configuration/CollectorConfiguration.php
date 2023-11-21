@@ -43,6 +43,7 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
         if ($defaultTransformationId !== null) {
             return $this->getDataTransformationName($defaultTransformationId) ?? '';
         }
+
         return '';
     }
 

@@ -2,18 +2,27 @@
 
 namespace DigitalMarketingFramework\Collector\Core\ContentModifier;
 
+use DigitalMarketingFramework\Collector\Core\ConfigurationDocument\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareTrait;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
+use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
+use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
+use DigitalMarketingFramework\Core\DataProcessor\DataProcessorContextInterface;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 
-abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, CollectorAwareInterface
+abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, CollectorAwareInterface, DataProcessorAwareInterface
 {
     use CollectorAwareTrait;
+    use DataProcessorAwareTrait;
 
     public const KEY_DATA_TRANSFORMATION_ID = 'dataTransformationId';
+
+    protected DataInterface $data;
 
     public function __construct(
         string $keyword,
@@ -22,6 +31,11 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     ) {
         parent::__construct($keyword, $registry);
         $this->configuration = $collectorConfiguration->getContentModifierConfiguration($this->getKeyword());
+    }
+
+    protected function getDataProcessorContext(): DataProcessorContextInterface
+    {
+        return $this->dataProcessor->createContext($this->getData(), $this->collectorConfiguration);
     }
 
     protected function publicTransformation(): bool
@@ -56,9 +70,12 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
 
     protected function getData(): DataInterface
     {
-        $data = $this->collector->collect($this->collectorConfiguration, invalidIdentifierHandling: $this->invalidIdentifierHandling());
-        $data = $this->transformData($data);
-        return $data;
+        if (!isset($this->data)) {
+            $this->data = $this->collector->collect($this->collectorConfiguration, invalidIdentifierHandling: $this->invalidIdentifierHandling());
+            $this->data = $this->transformData($this->data);
+        }
+
+        return $this->data;
     }
 
     public static function getSchema(): SchemaInterface

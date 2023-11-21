@@ -11,15 +11,12 @@ use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataTransformationR
 use DigitalMarketingFramework\Collector\Core\Registry\Service\CollectorRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\InvalidIdentifierHandlerRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\RenderingDefinition\RenderingDefinitionInterface;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\MapSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\StringSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\SchemaDocument;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Value\ScalarValues;
 use DigitalMarketingFramework\Core\Registry\Registry as CoreRegistry;
-use DigitalMarketingFramework\Core\Utility\MapUtility;
 
 class Registry extends CoreRegistry implements RegistryInterface
 {
@@ -66,6 +63,11 @@ class Registry extends CoreRegistry implements RegistryInterface
         $collectorSchema->addProperty(
             CollectorConfigurationInterface::KEY_DATA_TRANSFORMATIONS,
             $this->getDataTransformationSchema()
+        );
+
+        $collectorSchema->addProperty(
+            CollectorConfigurationInterface::KEY_CONTENT_MODIFIERS,
+            $this->getContentModifierSchema()
         );
 
         $schemaDocument->getMainSchema()->addProperty(
