@@ -22,6 +22,11 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
         return isset($this->getCollectorConfiguration()[static::KEY_DATA_COLLECTORS][$dataCollectorName]);
     }
 
+    public function getDataTransformationName(string $transformationId): ?string
+    {
+        return $this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS][$transformationId][MapUtility::KEY_KEY] ?? null;
+    }
+
     public function dataTransformationExists(string $transformationName): bool
     {
         return isset(MapUtility::flatten($this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS])[$transformationName]);
@@ -34,6 +39,23 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
 
     public function getDefaultDataTransformationName(): string
     {
-        return $this->getCollectorConfiguration()[static::KEY_DEFAULT_DATA_TRANSFORMATION] ?? '';
+        $defaultTransformationId = $this->getCollectorConfiguration()[static::KEY_DEFAULT_DATA_TRANSFORMATION] ?? '';
+        if ($defaultTransformationId !== null) {
+            return $this->getDataTransformationName($defaultTransformationId) ?? '';
+        }
+        return '';
+    }
+
+    public function contentModifierExists(string $keyword): bool
+    {
+        return isset($this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS][$keyword]);
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getContentModifierConfiguration(string $keyword): array
+    {
+        return $this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS][$keyword] ?? [];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Registry;
 
+use DigitalMarketingFramework\Collector\Core\Registry\Plugin\ContentModifierRegistryInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataCollectorRegistryInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataTransformationRegistryInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\CollectorRegistryInterface;
@@ -13,6 +14,7 @@ interface RegistryInterface extends
     InvalidIdentifierHandlerRegistryInterface,
     DataCollectorRegistryInterface,
     CollectorRegistryInterface,
-    DataTransformationRegistryInterface
+    DataTransformationRegistryInterface,
+    ContentModifierRegistryInterface
 {
 }

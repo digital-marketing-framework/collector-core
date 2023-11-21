@@ -14,6 +14,8 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
 
     public const KEY_DEFAULT_DATA_TRANSFORMATION = 'defaultTransformation';
 
+    public const KEY_CONTENT_MODIFIERS = 'contentModifiers';
+
     /**
      * @return array<string,mixed>
      */
@@ -26,7 +28,9 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
      */
     public function getDataCollectorConfiguration(string $dataCollectorName): array;
 
-    public function dataTransformationExists(string $transformationname): bool;
+    public function getDataTransformationName(string $transformationId): ?string;
+
+    public function dataTransformationExists(string $transformatioName): bool;
 
     /**
      * @return array<string,mixed>
@@ -34,4 +38,11 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
     public function getDataTransformationConfiguration(string $transformationName): array;
 
     public function getDefaultDataTransformationName(): string;
+
+    public function contentModifierExists(string $keyword): bool;
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getContentModifierConfiguration(string $keyword): array;
 }
