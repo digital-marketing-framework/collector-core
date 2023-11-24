@@ -2,10 +2,15 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Registry\Plugin;
 
+use DigitalMarketingFramework\Collector\Core\ConfigurationDocument\SchemaDocument\Schema\Plugin\ContentModifier\ContentModifierSchema;
 use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierInterface;
+use DigitalMarketingFramework\Collector\Core\ContentModifier\FrontendContentModifierInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\SchemaDocument;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\CustomSchema;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\MapSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\StringSchema;
 use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\PluginRegistryTrait;
 
@@ -23,28 +28,60 @@ trait ContentModifierRegistryTrait
         $this->deletePlugin($keyword, ContentModifierInterface::class);
     }
 
-    public function getContentModifier(string $keyword, ConfigurationInterface $configuration): ?ContentModifierInterface
+    public function getContentModifier(ConfigurationInterface $configuration, string $contentModifierId): ?ContentModifierInterface
     {
-        /** @var ?ContentModifierInterface */
-        return $this->getPlugin($keyword, ContentModifierInterface::class, [CollectorConfiguration::convert($configuration)]);
+        $configuration = CollectorConfiguration::convert($configuration);
+        $keyword = $configuration->getContentModifierKeyword($contentModifierId);
+        $name = $configuration->getContentModifierName($contentModifierId);
+
+        return $this->getPlugin($keyword, ContentModifierInterface::class, [$configuration, $contentModifierId, $name]);
     }
 
     /**
-     * @return array<ContentModifierInterface>
+     * @return array<string,ContentModifierInterface>
      */
-    public function getAllContentModifiers(ConfigurationInterface $configuration): array
+    public function getContentModifiers(ConfigurationInterface $configuration): array
     {
-        /** @var array<ContentModifierInterface> */
-        return $this->getAllPlugins(ContentModifierInterface::class, [$configuration]);
+        $configuration = CollectorConfiguration::convert($configuration);
+        $contentModifiers = [];
+        foreach ($configuration->getContentModifierIds() as $contentModifierId) {
+            $contentModifiers[$configuration->getContentModifierName($contentModifierId)] = $this->getContentModifier($configuration, $contentModifierId);
+        }
+
+        return $contentModifiers;
+    }
+
+    /**
+     * @return array<string,FrontendContentModifierInterface>
+     */
+    public function getFrontendContentModifiers(ConfigurationInterface $configuration): array
+    {
+        $contentModifiers = $this->getContentModifiers($configuration);
+        $contentModifiers = array_filter($contentModifiers, function(ContentModifierInterface $contentModifier) {
+            return $contentModifier instanceof FrontendContentModifierInterface;
+        });
+        return $contentModifiers;
     }
 
     public function getContentModifierSchema(): SchemaInterface
     {
-        $schema = new ContainerSchema();
+        $schema = new ContentModifierSchema();
         foreach ($this->getAllPluginClasses(ContentModifierInterface::class) as $key => $class) {
-            $schema->addProperty($key, $class::getSchema());
+            $schema = $class::getSchema();
+            $label = $class::getLabel();
+            $schema->addItem($key, $schema, $label);
         }
-
         return $schema;
+    }
+
+    public function getContentModifiersSchema(SchemaDocument $schemaDocument): SchemaInterface
+    {
+        $contentModifierSchema = $this->getContentModifierSchema();
+        $schemaDocument->addCustomType($contentModifierSchema, ContentModifierSchema::TYPE);
+
+        $contentModifierMapSchema = new MapSchema(new CustomSchema(ContentModifierSchema::TYPE), new StringSchema('modifierName'));
+        $contentModifierMapSchema->setDynamicOrder(true);
+
+        return $contentModifierMapSchema;
     }
 }

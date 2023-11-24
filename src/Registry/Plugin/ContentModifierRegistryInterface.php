@@ -3,6 +3,7 @@
 namespace DigitalMarketingFramework\Collector\Core\Registry\Plugin;
 
 use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierInterface;
+use DigitalMarketingFramework\Collector\Core\ContentModifier\FrontendContentModifierInterface;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\PluginRegistryInterface;
@@ -16,12 +17,17 @@ interface ContentModifierRegistryInterface extends PluginRegistryInterface
 
     public function deleteContentModifier(string $keyword): void;
 
-    public function getContentModifier(string $keyword, ConfigurationInterface $configuration): ?ContentModifierInterface;
+    public function getContentModifier(ConfigurationInterface $configuration, string $contentModifierId): ?ContentModifierInterface;
 
     /**
-     * @return array<ContentModifierInterface>
+     * @return array<string,ContentModifierInterface>
      */
-    public function getAllContentModifiers(ConfigurationInterface $configuration): array;
+    public function getContentModifiers(ConfigurationInterface $configuration): array;
+
+    /**
+     * @return array<string,FrontendContentModifierInterface>
+     */
+    public function getFrontendContentModifiers(ConfigurationInterface $configuration): array;
 
     public function getContentModifierSchema(): SchemaInterface;
 }

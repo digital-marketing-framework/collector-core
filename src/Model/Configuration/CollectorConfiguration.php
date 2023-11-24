@@ -2,6 +2,7 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Model\Configuration;
 
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SwitchSchema;
 use DigitalMarketingFramework\Core\Model\Configuration\Configuration;
 use DigitalMarketingFramework\Core\Utility\MapUtility;
 
@@ -46,17 +47,60 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
 
         return '';
     }
-
-    public function contentModifierExists(string $keyword): bool
+    /**
+     * @return array{uuid:string,weight:int,value:array{type:string,config:array<string,array<string,mixed>>}}
+     */
+    protected function getContentModifierMapItem(string $contentModifierId): array
     {
-        return isset($this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS][$keyword]);
+        $contentModifierMap = $this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? [];
+        if (!isset($contentModifierMap[$contentModifierId])) {
+            throw new DigitalMarketingFrameworkException(sprintf('content modifier with ID %s not found', $contentModifierId));
+        }
+
+        return $contentModifierMap[$contentModifierId];
+    }
+
+    public function getContentModifierIdFromName(string $name): ?string
+    {
+        $contentModifierConfigItems = $this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? [];
+        foreach ($contentModifierConfigItems as $contentModifierId => $contentModifierConfigItem) {
+            if (MapUtility::getItemKey($contentModiifierConfigItem) === $name) {
+                return $contentModifierId;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getContentModifierIds(): array
+    {
+        return array_keys($this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? []);
+    }
+
+    public function getContentModifierName(string $contentModifierId): string
+    {
+        $contentModifierItem = $this->getContentModifierMapItem($contentModifierId);
+        return MapUtility::getItemKey($contentModifierItem);
     }
 
     /**
      * @return array<string,mixed>
      */
-    public function getContentModifierConfiguration(string $keyword): array
+    public function getContentModifierConfiguration(string $contentModifierId): array
     {
-        return $this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS][$keyword] ?? [];
+        $contentModifierItem = $this->getContentModifierMapItem($contentModifierId);
+        $contentModifierConfiguration = MapUtility::getItemValue($contentModifierItem);
+
+        return SwitchSchema::getSwitchConfiguration($contentModifierConfiguration);
+    }
+
+    public function getContentModifierKeyword(string $contentModifierId): string
+    {
+        $contentModifierItem = $this->getContentModifierMapItem($contentModifierId);
+        $contentModifierConfiguration = MapUtility::getItemValue($contentModifierItem);
+
+        return SwitchSchema::getSwitchType($contentModifierConfiguration);
     }
 }

@@ -28,9 +28,21 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         string $keyword,
         RegistryInterface $registry,
         protected CollectorConfigurationInterface $collectorConfiguration,
+        protected string $contentModifierId,
+        protected string $contentModifierName,
     ) {
         parent::__construct($keyword, $registry);
-        $this->configuration = $collectorConfiguration->getContentModifierConfiguration($this->getKeyword());
+        $this->configuration = $collectorConfiguration->getContentModifierConfiguration($this->contentModifierId);
+    }
+
+    public function getContentModifierId(): string
+    {
+        return $this->contentModifierId;
+    }
+
+    public function getContentModifierName(): string
+    {
+        return $this->contentModifierName;
     }
 
     protected function getDataProcessorContext(): DataProcessorContextInterface

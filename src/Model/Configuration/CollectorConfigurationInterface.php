@@ -39,10 +39,19 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
 
     public function getDefaultDataTransformationName(): string;
 
-    public function contentModifierExists(string $keyword): bool;
+    public function getContentModifierIdFromName(string $name): ?string;
+
+    /**
+     * @return array<string>
+     */
+    public function getContentModifierIds(): array;
+
+    public function getContentModifierName(string $contentModifierId): string;
 
     /**
      * @return array<string,mixed>
      */
-    public function getContentModifierConfiguration(string $keyword): array;
+    public function getContentModifierConfiguration(string $contentModifierId): array;
+
+    public function getContentModifierKeyword(string $contentModifierId): string;
 }

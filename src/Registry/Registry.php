@@ -67,7 +67,7 @@ class Registry extends CoreRegistry implements RegistryInterface
 
         $collectorSchema->addProperty(
             CollectorConfigurationInterface::KEY_CONTENT_MODIFIERS,
-            $this->getContentModifierSchema()
+            $this->getContentModifiersSchema($schemaDocument)
         );
 
         $schemaDocument->getMainSchema()->addProperty(
