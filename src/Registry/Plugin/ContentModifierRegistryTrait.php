@@ -67,9 +67,9 @@ trait ContentModifierRegistryTrait
     {
         $schema = new ContentModifierSchema();
         foreach ($this->getAllPluginClasses(ContentModifierInterface::class) as $key => $class) {
-            $schema = $class::getSchema();
+            $contentModifierSchema = $class::getSchema();
             $label = $class::getLabel();
-            $schema->addItem($key, $schema, $label);
+            $schema->addItem($key, $contentModifierSchema, $label);
         }
         return $schema;
     }
@@ -79,7 +79,11 @@ trait ContentModifierRegistryTrait
         $contentModifierSchema = $this->getContentModifierSchema();
         $schemaDocument->addCustomType($contentModifierSchema, ContentModifierSchema::TYPE);
 
-        $contentModifierMapSchema = new MapSchema(new CustomSchema(ContentModifierSchema::TYPE), new StringSchema('modifierName'));
+        $mapKeySchema = new StringSchema('modifierName');
+        $mapKeySchema->getRenderingDefinition()->setLabel('Modifier Name');
+        $mapValueSchema = new CustomSchema(ContentModifierSchema::TYPE);
+        $mapValueSchema->getRenderingDefinition()->setLabel('{type} {../key}');
+        $contentModifierMapSchema = new MapSchema($mapValueSchema, $mapKeySchema);
         $contentModifierMapSchema->setDynamicOrder(true);
 
         return $contentModifierMapSchema;

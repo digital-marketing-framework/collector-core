@@ -64,7 +64,7 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
     {
         $contentModifierConfigItems = $this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? [];
         foreach ($contentModifierConfigItems as $contentModifierId => $contentModifierConfigItem) {
-            if (MapUtility::getItemKey($contentModiifierConfigItem) === $name) {
+            if (MapUtility::getItemKey($contentModifierConfigItem) === $name) {
                 return $contentModifierId;
             }
         }

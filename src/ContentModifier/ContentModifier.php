@@ -50,11 +50,6 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         return $this->dataProcessor->createContext($this->getData(), $this->collectorConfiguration);
     }
 
-    protected function publicTransformation(): bool
-    {
-        return false;
-    }
-
     protected function transformData(DataInterface $data): DataInterface
     {
         $id = $this->getConfig(static::KEY_DATA_TRANSFORMATION_ID);
@@ -67,7 +62,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
             return $data;
         }
 
-        $transformation = $this->registry->getDataTransformation($name, $this->collectorConfiguration, $this->publicTransformation());
+        $transformation = $this->registry->getDataTransformation($name, $this->collectorConfiguration, public: false);
         if ($transformation->allowed()) {
             $data = $transformation->transform($data);
         }
@@ -94,7 +89,8 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     {
         $schema = new ContainerSchema();
 
-        $transformationSchema = new DataTransformationReferenceSchema(required: false);
+        $transformationSchema = new DataTransformationReferenceSchema(required: false, firstEmptyOptionLabel: '[Passthrough]');
+        $transformationSchema->getRenderingDefinition()->setLabel('Preprocessing Data Transformation');
         $schema->addProperty(static::KEY_DATA_TRANSFORMATION_ID, $transformationSchema);
 
         return $schema;
