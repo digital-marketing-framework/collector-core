@@ -23,25 +23,34 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
         return isset($this->getCollectorConfiguration()[static::KEY_DATA_COLLECTORS][$dataCollectorName]);
     }
 
+    public function getDataTransformationConfigurationItems(): array
+    {
+        return $this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS] ?? [];
+    }
+
     public function getDataTransformationName(string $transformationId): ?string
     {
-        return $this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS][$transformationId][MapUtility::KEY_KEY] ?? null;
+        $transformationItem = $this->getDataTransformationConfigurationItems()[$transformationId] ?? null;
+        if ($transformationItem === null) {
+            return null;
+        }
+        return MapUtility::getItemKey($transformationItem);
     }
 
     public function dataTransformationExists(string $transformationName): bool
     {
-        return isset(MapUtility::flatten($this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS])[$transformationName]);
+        return isset(MapUtility::flatten($this->getDataTransformationConfigurationItems())[$transformationName]);
     }
 
     public function getDataTransformationConfiguration(string $transformationName): array
     {
-        return MapUtility::flatten($this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS])[$transformationName] ?? [];
+        return MapUtility::flatten($this->getDataTransformationConfigurationItems())[$transformationName] ?? [];
     }
 
     public function getDefaultDataTransformationName(): string
     {
         $defaultTransformationId = $this->getCollectorConfiguration()[static::KEY_DEFAULT_DATA_TRANSFORMATION] ?? '';
-        if ($defaultTransformationId !== null) {
+        if ($defaultTransformationId !== '') {
             return $this->getDataTransformationName($defaultTransformationId) ?? '';
         }
 

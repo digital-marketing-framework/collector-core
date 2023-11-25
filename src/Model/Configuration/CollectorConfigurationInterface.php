@@ -28,6 +28,11 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
      */
     public function getDataCollectorConfiguration(string $dataCollectorName): array;
 
+    /**
+     * @return array<string,array{uuid:string,key:string,weight:int,value:array<string,mixed>}>
+     */
+    public function getDataTransformationConfigurationItems(): array;
+
     public function getDataTransformationName(string $transformationId): ?string;
 
     public function dataTransformationExists(string $transformatioName): bool;

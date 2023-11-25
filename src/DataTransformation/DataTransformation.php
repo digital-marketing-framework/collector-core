@@ -22,14 +22,6 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
 
     public const KEY_VISIBILITY = 'visibility';
 
-    public const DEFAULT_VISIBILITY = 'disabled';
-
-    public const VISIBILITY_DISABLED = 'disabled';
-
-    public const VISIBILITY_PRIVATE = 'private';
-
-    public const VISIBILITY_PUBLIC = 'public';
-
     public const KEY_DATA_MAP = 'dataMap';
 
     public function __construct(
@@ -45,9 +37,14 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
         $this->configuration = $collectorConfiguration->getDataTransformationConfiguration($keyword);
     }
 
+    public function getVisibility(): string
+    {
+        return $this->getConfig(static::KEY_VISIBILITY);
+    }
+
     public function allowed(): bool
     {
-        $visibility = $this->getConfig(static::KEY_VISIBILITY);
+        $visibility = $this->getVisibility();
 
         return match ($visibility) {
             static::VISIBILITY_DISABLED => false,
