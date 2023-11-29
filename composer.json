@@ -21,7 +21,7 @@
     "homepage": "https://www.mediatis.de",
     "require": {
         "php": "^8.1",
-        "digital-marketing-framework/core": "dev-feature/prepare-content-modifier"
+        "digital-marketing-framework/core": "dev-feature/content-modifier"
     },
     "require-dev": {
         "mediatis/coding-standards": "^1.0"
