@@ -46,6 +46,7 @@ class Registry extends CoreRegistry implements RegistryInterface
     {
         parent::addConfigurationSchema($schemaDocument);
         $collectorSchema = new ContainerSchema();
+        $collectorSchema->getRenderingDefinition()->setLabel('Personalization');
 
         $collectorSchema->addProperty(
             CollectorConfigurationInterface::KEY_DATA_COLLECTORS,
