@@ -3,6 +3,7 @@
 namespace DigitalMarketingFramework\Collector\Core\Model\Configuration;
 
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SwitchSchema;
+use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Model\Configuration\Configuration;
 use DigitalMarketingFramework\Core\Utility\MapUtility;
 
@@ -34,6 +35,7 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
         if ($transformationItem === null) {
             return null;
         }
+
         return MapUtility::getItemKey($transformationItem);
     }
 
@@ -56,8 +58,9 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
 
         return '';
     }
+
     /**
-     * @return array{uuid:string,weight:int,value:array{type:string,config:array<string,array<string,mixed>>}}
+     * @return array{uuid:string,key:string,weight:int,value:array{type:string,config:array<string,array<string,mixed>>}}
      */
     protected function getContentModifierMapItem(string $contentModifierId): array
     {
@@ -77,6 +80,7 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
                 return $contentModifierId;
             }
         }
+
         return null;
     }
 
@@ -91,6 +95,7 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
     public function getContentModifierName(string $contentModifierId): string
     {
         $contentModifierItem = $this->getContentModifierMapItem($contentModifierId);
+
         return MapUtility::getItemKey($contentModifierItem);
     }
 

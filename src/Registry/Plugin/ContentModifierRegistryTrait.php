@@ -6,11 +6,11 @@ use DigitalMarketingFramework\Collector\Core\ConfigurationDocument\SchemaDocumen
 use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierInterface;
 use DigitalMarketingFramework\Collector\Core\ContentModifier\FrontendContentModifierInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\SchemaDocument;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\CustomSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\MapSchema;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\StringSchema;
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\SchemaDocument;
 use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\PluginRegistryTrait;
 
@@ -57,10 +57,10 @@ trait ContentModifierRegistryTrait
     public function getFrontendContentModifiers(ConfigurationInterface $configuration): array
     {
         $contentModifiers = $this->getContentModifiers($configuration);
-        $contentModifiers = array_filter($contentModifiers, function(ContentModifierInterface $contentModifier) {
+
+        return array_filter($contentModifiers, static function (ContentModifierInterface $contentModifier) {
             return $contentModifier instanceof FrontendContentModifierInterface;
         });
-        return $contentModifiers;
     }
 
     public function getContentModifierSchema(): SchemaInterface
@@ -71,6 +71,7 @@ trait ContentModifierRegistryTrait
             $label = $class::getLabel();
             $schema->addItem($key, $contentModifierSchema, $label);
         }
+
         return $schema;
     }
 

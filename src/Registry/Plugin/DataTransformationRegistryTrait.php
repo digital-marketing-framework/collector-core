@@ -26,13 +26,14 @@ trait DataTransformationRegistryTrait
     {
         $result = [];
         $items = $collectorConfiguration->getDataTransformationConfigurationItems();
-        foreach ($items as $id => $item) {
+        foreach ($items as $item) {
             $keyword = MapUtility::getItemKey($item);
             $transformation = $this->getDataTransformation($keyword, $collectorConfiguration, $public);
             if ($transformation->allowed()) {
                 $result[] = $keyword;
             }
         }
+
         return $result;
     }
 
