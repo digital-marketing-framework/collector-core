@@ -19,6 +19,8 @@ interface ContentModifierRegistryInterface extends PluginRegistryInterface
 
     public function getContentModifier(ConfigurationInterface $configuration, string $contentModifierId): ?ContentModifierInterface;
 
+    public function getFrontendContentModifier(ConfigurationInterface $configuration, string $contentModifierId): ?FrontendContentModifierInterface;
+
     /**
      * @return array<string,ContentModifierInterface>
      */

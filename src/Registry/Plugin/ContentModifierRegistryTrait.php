@@ -37,6 +37,16 @@ trait ContentModifierRegistryTrait
         return $this->getPlugin($keyword, ContentModifierInterface::class, [$configuration, $contentModifierId, $name]);
     }
 
+    public function getFrontendContentModifier(ConfigurationInterface $configuration, string $contentModifierId): ?FrontendContentModifierInterface
+    {
+        $contentModifier = $this->getContentModifier($configuration, $contentModifierId);
+        if ($contentModifier instanceof FrontendContentModifierInterface) {
+            return $contentModifier;
+        }
+
+        return null;
+    }
+
     /**
      * @return array<string,ContentModifierInterface>
      */
