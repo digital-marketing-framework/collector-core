@@ -41,6 +41,8 @@ trait DataCollectorRegistryTrait
     public function getDataCollectorSchema(): SchemaInterface
     {
         $schema = new DataCollectorSchema();
+        $schema->getRenderingDefinition()->setLabel('Data Collectors');
+
         foreach ($this->getAllPluginClasses(DataCollectorInterface::class) as $key => $class) {
             $schema->addItem($key, $class::getSchema());
         }

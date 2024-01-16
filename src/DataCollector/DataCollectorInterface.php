@@ -8,9 +8,9 @@ use DigitalMarketingFramework\Core\Context\ContextInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
 use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
-use DigitalMarketingFramework\Core\Plugin\PluginInterface;
+use DigitalMarketingFramework\Core\Plugin\ConfigurablePluginInterface;
 
-interface DataCollectorInterface extends PluginInterface
+interface DataCollectorInterface extends ConfigurablePluginInterface
 {
     public function addContext(ContextInterface $source, WriteableContextInterface $target): void;
 

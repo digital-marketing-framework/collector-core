@@ -2,6 +2,8 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Model\Configuration;
 
+use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SwitchSchema;
+use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Model\Configuration\Configuration;
 use DigitalMarketingFramework\Core\Utility\MapUtility;
 
@@ -22,18 +24,97 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
         return isset($this->getCollectorConfiguration()[static::KEY_DATA_COLLECTORS][$dataCollectorName]);
     }
 
+    public function getDataTransformationConfigurationItems(): array
+    {
+        return $this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS] ?? [];
+    }
+
+    public function getDataTransformationName(string $transformationId): ?string
+    {
+        $transformationItem = $this->getDataTransformationConfigurationItems()[$transformationId] ?? null;
+        if ($transformationItem === null) {
+            return null;
+        }
+
+        return MapUtility::getItemKey($transformationItem);
+    }
+
     public function dataTransformationExists(string $transformationName): bool
     {
-        return isset(MapUtility::flatten($this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS])[$transformationName]);
+        return isset(MapUtility::flatten($this->getDataTransformationConfigurationItems())[$transformationName]);
     }
 
     public function getDataTransformationConfiguration(string $transformationName): array
     {
-        return MapUtility::flatten($this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS])[$transformationName] ?? [];
+        return MapUtility::flatten($this->getDataTransformationConfigurationItems())[$transformationName] ?? [];
     }
 
     public function getDefaultDataTransformationName(): string
     {
-        return $this->getCollectorConfiguration()[static::KEY_DEFAULT_DATA_TRANSFORMATION] ?? '';
+        $defaultTransformationId = $this->getCollectorConfiguration()[static::KEY_DEFAULT_DATA_TRANSFORMATION] ?? '';
+        if ($defaultTransformationId !== '') {
+            return $this->getDataTransformationName($defaultTransformationId) ?? '';
+        }
+
+        return '';
+    }
+
+    /**
+     * @return array{uuid:string,key:string,weight:int,value:array{type:string,config:array<string,array<string,mixed>>}}
+     */
+    protected function getContentModifierMapItem(string $contentModifierId): array
+    {
+        $contentModifierMap = $this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? [];
+        if (!isset($contentModifierMap[$contentModifierId])) {
+            throw new DigitalMarketingFrameworkException(sprintf('content modifier with ID %s not found', $contentModifierId));
+        }
+
+        return $contentModifierMap[$contentModifierId];
+    }
+
+    public function getContentModifierIdFromName(string $name): ?string
+    {
+        $contentModifierConfigItems = $this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? [];
+        foreach ($contentModifierConfigItems as $contentModifierId => $contentModifierConfigItem) {
+            if (MapUtility::getItemKey($contentModifierConfigItem) === $name) {
+                return $contentModifierId;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getContentModifierIds(): array
+    {
+        return array_keys($this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? []);
+    }
+
+    public function getContentModifierName(string $contentModifierId): string
+    {
+        $contentModifierItem = $this->getContentModifierMapItem($contentModifierId);
+
+        return MapUtility::getItemKey($contentModifierItem);
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getContentModifierConfiguration(string $contentModifierId): array
+    {
+        $contentModifierItem = $this->getContentModifierMapItem($contentModifierId);
+        $contentModifierConfiguration = MapUtility::getItemValue($contentModifierItem);
+
+        return SwitchSchema::getSwitchConfiguration($contentModifierConfiguration);
+    }
+
+    public function getContentModifierKeyword(string $contentModifierId): string
+    {
+        $contentModifierItem = $this->getContentModifierMapItem($contentModifierId);
+        $contentModifierConfiguration = MapUtility::getItemValue($contentModifierItem);
+
+        return SwitchSchema::getSwitchType($contentModifierConfiguration);
     }
 }

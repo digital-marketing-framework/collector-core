@@ -4,7 +4,7 @@ namespace DigitalMarketingFramework\Collector\Core\Service;
 
 trait CollectorAwareTrait
 {
-    protected Collector $collector;
+    protected CollectorInterface $collector;
 
     public function setCollector(CollectorInterface $collector): void
     {
