@@ -50,19 +50,29 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         return $this->dataProcessor->createContext($this->getData(), $this->collectorConfiguration);
     }
 
+    protected function dataTransformationMustBePublic(): bool
+    {
+        return false;
+    }
+
     protected function transformData(DataInterface $data): DataInterface
     {
         $id = $this->getConfig(static::KEY_DATA_TRANSFORMATION_ID);
-        if ($id === '') {
-            return $data;
-        }
+        $name = $id === '' ? null : $this->collectorConfiguration->getDataTransformationName($id);
 
-        $name = $this->collectorConfiguration->getDataTransformationName($id);
         if ($name === null) {
+            if ($this->dataTransformationMustBePublic()) {
+                throw new DigitalMarketingException('No data transformation given for content modifier');
+            } else {
             return $data;
         }
+        }
 
-        $transformation = $this->registry->getDataTransformation($name, $this->collectorConfiguration, public: false);
+        $transformation = $this->registry->getDataTransformation(
+            $name,
+            $this->collectorConfiguration,
+            $this->dataTransformationMustBePublic()
+        );
         if ($transformation->allowed()) {
             $data = $transformation->transform($data);
         }
