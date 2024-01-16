@@ -13,6 +13,7 @@ use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\S
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorContextInterface;
+use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 
 abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, CollectorAwareInterface, DataProcessorAwareInterface
@@ -62,10 +63,10 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
 
         if ($name === null) {
             if ($this->dataTransformationMustBePublic()) {
-                throw new DigitalMarketingException('No data transformation given for content modifier');
-            } else {
+                throw new DigitalMarketingFrameworkException('No data transformation given for content modifier');
+            }
+
             return $data;
-        }
         }
 
         $transformation = $this->registry->getDataTransformation(
