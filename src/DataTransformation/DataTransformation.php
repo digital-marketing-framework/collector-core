@@ -3,18 +3,18 @@
 namespace DigitalMarketingFramework\Collector\Core\DataTransformation;
 
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\RenderingDefinition\RenderingDefinitionInterface;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\CustomSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\Plugin\DataProcessor\DataMapperSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\StringSchema;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Model\Data\Data;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\Plugin\ConfigurablePlugin;
+use DigitalMarketingFramework\Core\SchemaDocument\RenderingDefinition\RenderingDefinitionInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\DataMapperGroupReferenceSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\StringSchema;
 
 class DataTransformation extends ConfigurablePlugin implements DataTransformationInterface, DataProcessorAwareInterface
 {
@@ -60,9 +60,11 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
             return new Data();
         }
 
-        $map = $this->getConfig(static::KEY_DATA_MAP);
+        $dataMapperGroupId = $this->getConfig(static::KEY_DATA_MAP);
+        $dataMapperGroupConfig = $this->collectorConfiguration->getDataMapperGroupConfiguration($dataMapperGroupId);
+        $context = $this->dataProcessor->createContext($data, $this->collectorConfiguration);
 
-        return $this->dataProcessor->processDataMapper($map, $data, $this->collectorConfiguration);
+        return $this->dataProcessor->processDataMapperGroup($dataMapperGroupConfig, $context);
     }
 
     public static function getSchema(): SchemaInterface
@@ -76,7 +78,7 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
         $visibility->getRenderingDefinition()->setFormat(RenderingDefinitionInterface::FORMAT_SELECT);
         $schema->addProperty(static::KEY_VISIBILITY, $visibility);
 
-        $dataTransformationMapper = new CustomSchema(DataMapperSchema::TYPE);
+        $dataTransformationMapper = new CustomSchema(DataMapperGroupReferenceSchema::TYPE);
         $schema->addProperty(static::KEY_DATA_MAP, $dataTransformationMapper);
 
         return $schema;

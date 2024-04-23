@@ -2,11 +2,11 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Service;
 
-use DigitalMarketingFramework\Collector\Core\DataCollector\DataCollectorInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
-use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResult;
-use DigitalMarketingFramework\Collector\Core\Model\Result\DataCollectorResultInterface;
+use DigitalMarketingFramework\Collector\Core\Model\Result\InboundRouteResult;
+use DigitalMarketingFramework\Collector\Core\Model\Result\InboundRouteResultInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
+use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
 use DigitalMarketingFramework\Core\Cache\DataCacheAwareInterface;
 use DigitalMarketingFramework\Core\Cache\DataCacheAwareTrait;
 use DigitalMarketingFramework\Core\Context\ContextAwareInterface;
@@ -15,6 +15,7 @@ use DigitalMarketingFramework\Core\Context\WriteableContext;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
+use DigitalMarketingFramework\Core\IdentifierCollector\IdentifierCollectorInterface;
 use DigitalMarketingFramework\Core\Log\LoggerAwareInterface;
 use DigitalMarketingFramework\Core\Log\LoggerAwareTrait;
 use DigitalMarketingFramework\Core\Model\Data\Data;
@@ -41,18 +42,18 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         return $this->cache->fetch($identifier);
     }
 
-    protected function fetch(string $keyword, IdentifierInterface $identifier, CollectorConfigurationInterface $configuration): DataCollectorResultInterface
+    protected function fetch(string $keyword, IdentifierInterface $identifier, CollectorConfigurationInterface $configuration): InboundRouteResultInterface
     {
-        $dataCollector = $this->registry->getDataCollector($keyword, $configuration);
-        if (!$dataCollector instanceof DataCollectorInterface) {
-            throw new DigitalMarketingFrameworkException(sprintf('data collector "%s" not found', $keyword));
+        $inboundRoute = $this->registry->getInboundRoute($keyword, $configuration);
+        if (!$inboundRoute instanceof InboundRouteInterface) {
+            throw new DigitalMarketingFrameworkException(sprintf('inbound route "%s" not found', $keyword));
         }
 
-        $result = $dataCollector->getData($identifier);
+        $result = $inboundRoute->getData($identifier);
         // "no result" can be cached too, as empty result
         // TODO can it? should it?
-        if (!$result instanceof DataCollectorResultInterface) {
-            $result = new DataCollectorResult(new Data(), [$identifier]);
+        if (!$result instanceof InboundRouteResultInterface) {
+            $result = new InboundRouteResult(new Data(), [$identifier]);
         }
 
         return $result;
@@ -61,52 +62,110 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
     /**
      * @param array<IdentifierInterface> $identifiers
      */
-    protected function save(DataInterface $data, array $identifiers): void
+    protected function save(DataInterface $data, array $identifiers, int $cacheTimeoutInSeconds): void
     {
         $identifier = array_shift($identifiers);
-        $this->cache->store($identifier, $data);
+        $this->cache->store(
+            $identifier,
+            $data,
+            timeoutInSeconds: $cacheTimeoutInSeconds
+        );
         foreach ($identifiers as $referenceIdentifier) {
-            $this->cache->storeReference($referenceIdentifier, $identifier);
+            $this->cache->storeReference(
+                $referenceIdentifier,
+                $identifier,
+                timeoutInSeconds: $cacheTimeoutInSeconds
+            );
         }
+    }
+
+    /**
+     * @param array<string> $fieldGroups
+     */
+    protected function inboundRouteNeeded(InboundRouteInterface $inboundRoute, array $fieldGroups = []): bool
+    {
+        if ($fieldGroups === []) {
+            return true;
+        }
+
+        $providedFieldGroups = $inboundRoute->getProvidedFieldGroups();
+
+        return array_intersect($fieldGroups, $providedFieldGroups) !== [];
+    }
+
+    /**
+     * @param array<string> $fieldGroups
+     *
+     * @return array<string,array{inboundRoute:InboundRouteInterface,identifierCollector:IdentifierCollectorInterface}>
+     */
+    protected function getInboundPlugins(CollectorConfigurationInterface $configuration, array $fieldGroups = []): array
+    {
+        $result = [];
+        $allInboundRoutes = $this->registry->getAllInboundRoutes($configuration);
+        foreach ($allInboundRoutes as $inboundRoute) {
+            if (!$this->inboundRouteNeeded($inboundRoute, $fieldGroups)) {
+                continue;
+            }
+
+            $keyword = $inboundRoute->getKeyword();
+            $identifierCollector = $this->registry->getIdentifierCollector($keyword, $configuration);
+
+            if (!$identifierCollector instanceof IdentifierCollectorInterface) {
+                throw new DigitalMarketingFrameworkException(sprintf('No identifier collector for inbound route with keyword "%s" found.', $keyword));
+            }
+
+            $result[$keyword] = [
+                'inboundRoute' => $inboundRoute,
+                'identifierCollector' => $identifierCollector,
+            ];
+        }
+
+        return $result;
     }
 
     public function collect(
         CollectorConfigurationInterface $configuration,
+        array $fieldGroups = [],
         ?WriteableContextInterface $preparedContext = null,
         bool $invalidIdentifierHandling = false
     ): DataInterface {
         if (!$preparedContext instanceof WriteableContextInterface) {
-            $preparedContext = $this->prepareContext($configuration);
+            $preparedContext = $this->prepareContext($configuration, $fieldGroups);
         }
+        $generalCacheTimeoutInSeconds = $configuration->getGeneralCacheTimeoutInSeconds();
+        $this->cache->setTimeoutInSeconds($generalCacheTimeoutInSeconds);
 
-        $identifierCollectors = $this->registry->getAllIdentifierCollectors($configuration);
+        $pluginSets = $this->getInboundPlugins($configuration, $fieldGroups);
         $invalidIdentifier = false;
         $result = new Data();
-        foreach ($identifierCollectors as $identifierCollector) {
+        foreach ($pluginSets as $keyword => $pluginSet) {
             try {
+                $identifierCollector = $pluginSet['identifierCollector'];
+                $inboundRoute = $pluginSet['inboundRoute'];
+                $cacheTimeoutInSeconds = $inboundRoute->getCacheTimeoutInSeconds() ?? $generalCacheTimeoutInSeconds;
+
                 $identifier = $identifierCollector->getIdentifier($preparedContext);
                 if (!$identifier instanceof IdentifierInterface) {
                     continue;
                 }
 
                 $identifiers = [$identifier];
-                $data = $this->lookup($identifier);
+                $data = $cacheTimeoutInSeconds > 0 ? $this->lookup($identifier) : null;
                 if (!$data instanceof DataInterface) {
-                    $dataCollectorResult = $this->fetch($identifierCollector->getKeyword(), $identifier, $configuration);
-                    $identifiers = $dataCollectorResult->getIdentifiers();
-                    $data = $dataCollectorResult->getData();
+                    $inboundRouteResult = $this->fetch($keyword, $identifier, $configuration);
+                    $identifiers = $inboundRouteResult->getIdentifiers();
+                    $data = $inboundRouteResult->getData();
                 }
 
                 if ($data instanceof DataInterface) {
-                    $this->save($data, $identifiers);
+                    if ($cacheTimeoutInSeconds > 0) {
+                        $this->save($data, $identifiers, $cacheTimeoutInSeconds);
+                    }
                     $result = CacheUtility::mergeData([$result, $data], override: false);
                 }
             } catch (InvalidIdentifierException $e) {
-                // NOTE: an invalid-identifier exception does not mean that there was no identifier and the user is just not identified
-                //       it means that there was an identifier, which was invalid, which could be a malicious attempt to guess a session ID
                 $this->logger->info($e->getMessage());
                 $invalidIdentifier = true;
-                continue;
             }
         }
 
@@ -123,20 +182,17 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
 
     public function prepareContext(
         CollectorConfigurationInterface $configuration,
+        array $fieldGroups = [],
         ?WriteableContextInterface $context = null
     ): WriteableContextInterface {
         if (!$context instanceof WriteableContextInterface) {
             $context = new WriteableContext();
         }
 
-        $identifierCollectors = $this->registry->getAllIdentifierCollectors($configuration);
-        foreach ($identifierCollectors as $identifierCollector) {
-            $identifierCollector->addContext($this->context, $context);
-        }
-
-        $collectors = $this->registry->getAllDataCollectors($configuration);
-        foreach ($collectors as $collector) {
-            $collector->addContext($this->context, $context);
+        $pluginSets = $this->getInboundPlugins($configuration, $fieldGroups);
+        foreach ($pluginSets as $pluginSet) {
+            $pluginSet['identifierCollector']->addContext($this->context, $context);
+            $pluginSet['inboundRoute']->addContext($this->context, $context);
         }
 
         return $context;

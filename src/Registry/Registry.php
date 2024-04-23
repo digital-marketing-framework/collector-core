@@ -2,26 +2,27 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Registry;
 
-use DigitalMarketingFramework\Collector\Core\ConfigurationDocument\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
 use DigitalMarketingFramework\Collector\Core\DataTransformation\DataTransformation;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\ContentModifierRegistryTrait;
-use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataCollectorRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataTransformationRegistryTrait;
+use DigitalMarketingFramework\Collector\Core\Registry\Plugin\InboundRouteRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\CollectorRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\InvalidIdentifierHandlerRegistryTrait;
+use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\MapSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\StringSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\SchemaDocument;
 use DigitalMarketingFramework\Core\Registry\Registry as CoreRegistry;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\IntegerSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\MapSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\StringSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 
 class Registry extends CoreRegistry implements RegistryInterface
 {
     use InvalidIdentifierHandlerRegistryTrait;
-    use DataCollectorRegistryTrait;
+    use InboundRouteRegistryTrait;
     use CollectorRegistryTrait;
     use DataTransformationRegistryTrait;
     use ContentModifierRegistryTrait;
@@ -45,15 +46,19 @@ class Registry extends CoreRegistry implements RegistryInterface
     public function addConfigurationSchema(SchemaDocument $schemaDocument): void
     {
         parent::addConfigurationSchema($schemaDocument);
-        $collectorSchema = new ContainerSchema();
-        $collectorSchema->getRenderingDefinition()->setLabel('Personalization');
 
-        $collectorSchema->addProperty(
-            CollectorConfigurationInterface::KEY_DATA_COLLECTORS,
-            $this->getDataCollectorSchema()
-        );
+        $generalInboundConfiguration = new ContainerSchema();
+        $cacheTimeoutSchema = new IntegerSchema(CollectorConfigurationInterface::DEFAULT_CACHE_TIMEOUT);
+        $cacheTimeoutSchema->getRenderingDefinition()->setLabel('Cache lifetime (seconds)');
+        $generalInboundConfiguration->addProperty(CollectorConfigurationInterface::KEY_CACHE_TIMEOUT, $cacheTimeoutSchema);
+        $generalIntegration = $this->getGeneralIntegrationSchema($schemaDocument);
+        $generalIntegration->addProperty(CollectorConfigurationInterface::KEY_INBOUND_ROUTES, $generalInboundConfiguration);
 
-        $collectorSchema->addProperty(
+        $this->addInboundRoutesSchemas($schemaDocument);
+
+        $personalizationSchema = new ContainerSchema();
+
+        $personalizationSchema->addProperty(
             CollectorConfigurationInterface::KEY_DEFAULT_DATA_TRANSFORMATION,
             new DataTransformationReferenceSchema(
                 required: false,
@@ -61,19 +66,19 @@ class Registry extends CoreRegistry implements RegistryInterface
             )
         );
 
-        $collectorSchema->addProperty(
+        $personalizationSchema->addProperty(
             CollectorConfigurationInterface::KEY_DATA_TRANSFORMATIONS,
             $this->getDataTransformationSchema()
         );
 
-        $collectorSchema->addProperty(
+        $personalizationSchema->addProperty(
             CollectorConfigurationInterface::KEY_CONTENT_MODIFIERS,
             $this->getContentModifiersSchema($schemaDocument)
         );
 
         $schemaDocument->getMainSchema()->addProperty(
-            CollectorConfigurationInterface::KEY_COLLECTOR,
-            $collectorSchema
+            CollectorConfigurationInterface::KEY_PERSONALIZATION,
+            $personalizationSchema
         );
     }
 }

@@ -12,7 +12,7 @@ trait DataTransformationRegistryTrait
 {
     use PluginRegistryTrait;
 
-    abstract protected function createObject(string $class, array $arguments = []): object;
+    abstract public function createObject(string $class, array $arguments = []): object;
 
     public function getDataTransformation(string $keyword, CollectorConfigurationInterface $collectorConfiguration, bool $public = false): DataTransformationInterface
     {

@@ -5,7 +5,7 @@ namespace DigitalMarketingFramework\Collector\Core\Model\Result;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
 
-class DataCollectorResult implements DataCollectorResultInterface
+class InboundRouteResult implements InboundRouteResultInterface
 {
     /**
      * @param array<IdentifierInterface> $identifiers

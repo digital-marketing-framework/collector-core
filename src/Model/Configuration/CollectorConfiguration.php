@@ -2,31 +2,46 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Model\Configuration;
 
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SwitchSchema;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Model\Configuration\Configuration;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\SwitchSchema;
 use DigitalMarketingFramework\Core\Utility\MapUtility;
 
 class CollectorConfiguration extends Configuration implements CollectorConfigurationInterface
 {
-    public function getCollectorConfiguration(bool $resolveNull = true): array
+    public function getInboundConfiguration(string $integrationName): array
     {
-        return $this->getMergedConfiguration($resolveNull)[static::KEY_COLLECTOR] ?? [];
+        return $this->getIntegrationConfiguration($integrationName)[static::KEY_INBOUND_ROUTES] ?? [];
     }
 
-    public function getDataCollectorConfiguration(string $dataCollectorName): array
+    public function getGeneralInboundConfiguration(): array
     {
-        return $this->getCollectorConfiguration()[static::KEY_DATA_COLLECTORS][$dataCollectorName] ?? [];
+        return $this->getInboundConfiguration(static::KEY_GENERAL_INTEGRATION);
     }
 
-    public function dataCollectorExists(string $dataCollectorName): bool
+    public function getGeneralCacheTimeoutInSeconds(): int
     {
-        return isset($this->getCollectorConfiguration()[static::KEY_DATA_COLLECTORS][$dataCollectorName]);
+        return $this->getGeneralInboundConfiguration()[static::KEY_CACHE_TIMEOUT] ?? static::DEFAULT_CACHE_TIMEOUT;
+    }
+
+    public function getInboundRouteConfiguration(string $integrationName, string $inboundRouteName): array
+    {
+        return $this->getInboundConfiguration($integrationName)[$inboundRouteName] ?? [];
+    }
+
+    public function inboundRouteExists(string $integrationName, string $inboundRouteName): bool
+    {
+        return isset($this->getInboundConfiguration($integrationName)[$inboundRouteName]);
+    }
+
+    public function getPersonalizationConfiguration(): array
+    {
+        return $this->get(static::KEY_PERSONALIZATION, []);
     }
 
     public function getDataTransformationConfigurationItems(): array
     {
-        return $this->getCollectorConfiguration()[static::KEY_DATA_TRANSFORMATIONS] ?? [];
+        return $this->getPersonalizationConfiguration()[static::KEY_DATA_TRANSFORMATIONS] ?? [];
     }
 
     public function getDataTransformationName(string $transformationId): ?string
@@ -51,7 +66,7 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
 
     public function getDefaultDataTransformationName(): string
     {
-        $defaultTransformationId = $this->getCollectorConfiguration()[static::KEY_DEFAULT_DATA_TRANSFORMATION] ?? '';
+        $defaultTransformationId = $this->getPersonalizationConfiguration()[static::KEY_DEFAULT_DATA_TRANSFORMATION] ?? '';
         if ($defaultTransformationId !== '') {
             return $this->getDataTransformationName($defaultTransformationId) ?? '';
         }
@@ -64,7 +79,7 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
      */
     protected function getContentModifierMapItem(string $contentModifierId): array
     {
-        $contentModifierMap = $this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? [];
+        $contentModifierMap = $this->getPersonalizationConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? [];
         if (!isset($contentModifierMap[$contentModifierId])) {
             throw new DigitalMarketingFrameworkException(sprintf('content modifier with ID %s not found', $contentModifierId));
         }
@@ -74,7 +89,7 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
 
     public function getContentModifierIdFromName(string $name): ?string
     {
-        $contentModifierConfigItems = $this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? [];
+        $contentModifierConfigItems = $this->getPersonalizationConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? [];
         foreach ($contentModifierConfigItems as $contentModifierId => $contentModifierConfigItem) {
             if (MapUtility::getItemKey($contentModifierConfigItem) === $name) {
                 return $contentModifierId;
@@ -89,7 +104,7 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
      */
     public function getContentModifierIds(): array
     {
-        return array_keys($this->getCollectorConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? []);
+        return array_keys($this->getPersonalizationConfiguration()[static::KEY_CONTENT_MODIFIERS] ?? []);
     }
 
     public function getContentModifierName(string $contentModifierId): string

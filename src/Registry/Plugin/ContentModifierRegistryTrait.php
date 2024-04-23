@@ -2,17 +2,17 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Registry\Plugin;
 
-use DigitalMarketingFramework\Collector\Core\ConfigurationDocument\SchemaDocument\Schema\Plugin\ContentModifier\ContentModifierSchema;
 use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierInterface;
 use DigitalMarketingFramework\Collector\Core\ContentModifier\FrontendContentModifierInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\CustomSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\MapSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\StringSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\SchemaDocument;
+use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Plugin\ContentModifier\ContentModifierSchema;
 use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\PluginRegistryTrait;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\MapSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\StringSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 
 trait ContentModifierRegistryTrait
 {
