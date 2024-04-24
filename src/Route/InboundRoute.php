@@ -53,6 +53,11 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
         return null;
     }
 
+    public static function getIntegrationIcon(): ?string
+    {
+        return null;
+    }
+
     public static function getInboundRouteListLabel(): ?string
     {
         return null;
@@ -60,7 +65,7 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
 
     public static function getIntegrationWeight(): int
     {
-        return static::WEIGHT;
+        return static::INTEGRATION_WEIGHT_DEFAULT;
     }
 
     public function getProvidedFieldGroups(): array

@@ -46,7 +46,6 @@ trait InboundRouteRegistryTrait
             $schema = $class::getSchema();
             $integration = $class::getIntegrationName();
             $integrationLabel = $class::getIntegrationLabel();
-            $integrationWeight = $class::getIntegrationWeight();
             $label = $class::getLabel();
             $inboundRouteListLabel = $class::getInboundRouteListLabel();
 
@@ -67,7 +66,7 @@ trait InboundRouteRegistryTrait
             $schemaDocument->addValueToValueSet('inboundRoutes/all', $keyword);
             $schemaDocument->addValueToValueSet('inboundRoutes/' . $integration . '/all', $keyword);
 
-            $integrationSchema = $this->getIntegrationSchema($schemaDocument, $integration, $integrationLabel, $integrationWeight);
+            $integrationSchema = $this->getIntegrationSchemaForPluginClass($schemaDocument, $class);
             $integrationInboundSchema = $integrationSchema->getProperty(CollectorConfigurationInterface::KEY_INBOUND_ROUTES);
             if (!$integrationInboundSchema instanceof ContainerSchema) {
                 $integrationInboundSchema = new ContainerSchema();
@@ -75,6 +74,7 @@ trait InboundRouteRegistryTrait
                     $inboundRouteListLabel = 'Routes from ' . ($integrationLabel ?? GeneralUtility::getLabelFromValue($integration));
                 }
                 $integrationInboundSchema->getRenderingDefinition()->setLabel($inboundRouteListLabel);
+                $integrationInboundSchema->getRenderingDefinition()->setIcon('inbound-routes');
                 $integrationSchema->addProperty(CollectorConfigurationInterface::KEY_INBOUND_ROUTES, $integrationInboundSchema);
             }
             $property = $integrationInboundSchema->addProperty($keyword, $schema);

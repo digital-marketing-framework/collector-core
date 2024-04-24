@@ -48,6 +48,7 @@ class Registry extends CoreRegistry implements RegistryInterface
         parent::addConfigurationSchema($schemaDocument);
 
         $generalInboundConfiguration = new ContainerSchema();
+        $generalInboundConfiguration->getRenderingDefinition()->setIcon('inbound-routes');
         $cacheTimeoutSchema = new IntegerSchema(CollectorConfigurationInterface::DEFAULT_CACHE_TIMEOUT);
         $cacheTimeoutSchema->getRenderingDefinition()->setLabel('Cache lifetime (seconds)');
         $generalInboundConfiguration->addProperty(CollectorConfigurationInterface::KEY_CACHE_TIMEOUT, $cacheTimeoutSchema);
