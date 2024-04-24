@@ -18,6 +18,7 @@ use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\DataMapperGroupReferenceSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\InheritableIntegerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\IntegerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 
 abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteInterface, DataProcessorAwareInterface
@@ -27,6 +28,10 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
     protected const KEY_ENABLED = 'enabled';
 
     protected const DEFAULT_ENABLED = false;
+
+    protected const KEY_PRIORITY = 'priority';
+
+    protected const DEFAULT_PRIORITY = 10;
 
     public const KEY_CACHE_TIMEOUT_IN_SECONDS = 'cacheLifetime';
 
@@ -51,6 +56,11 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
     public static function getInboundRouteListLabel(): ?string
     {
         return null;
+    }
+
+    public static function getIntegrationWeight(): int
+    {
+        return static::WEIGHT;
     }
 
     public function getProvidedFieldGroups(): array
@@ -109,6 +119,13 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
         return [];
     }
 
+    public function getConfiguredWeight(): int
+    {
+        // NOTE The priority is sorted descending, while the weight is sorted ascending,
+        //      so, a higher priority means a lower weight.
+        return 20 - $this->getConfig(static::KEY_PRIORITY);
+    }
+
     public static function getSchema(): SchemaInterface
     {
         $schema = new ContainerSchema();
@@ -119,6 +136,10 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
         }
 
         $schema->addProperty(static::KEY_ENABLED, new BooleanSchema(static::DEFAULT_ENABLED));
+
+        $prioritySchema = new IntegerSchema(static::DEFAULT_PRIORITY);
+        $prioritySchema->getRenderingDefinition()->setHint('Routes with a higher priority will take precedence and can add their fields first. Once a field is written, it will not be overwritten by other routes.');
+        $schema->addProperty(static::KEY_PRIORITY, $prioritySchema);
 
         $cacheLifetimeSchema = new InheritableIntegerSchema();
         $cacheLifetimeSchema->getRenderingDefinition()->setLabel('Cache lifetime (seconds)');

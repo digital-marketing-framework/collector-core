@@ -29,7 +29,6 @@ trait InboundRouteRegistryTrait
 
     public function getInboundRoute(string $keyword, ConfigurationInterface $configuration): ?InboundRouteInterface
     {
-        /** @var ?InboundRouteInterface */
         return $this->getPlugin($keyword, InboundRouteInterface::class, [CollectorConfiguration::convert($configuration)]);
     }
 
@@ -38,7 +37,6 @@ trait InboundRouteRegistryTrait
      */
     public function getAllInboundRoutes(ConfigurationInterface $configuration): array
     {
-        /** @var array<InboundRouteInterface> */
         return $this->getAllPlugins(InboundRouteInterface::class, [$configuration]);
     }
 
@@ -48,6 +46,7 @@ trait InboundRouteRegistryTrait
             $schema = $class::getSchema();
             $integration = $class::getIntegrationName();
             $integrationLabel = $class::getIntegrationLabel();
+            $integrationWeight = $class::getIntegrationWeight();
             $label = $class::getLabel();
             $inboundRouteListLabel = $class::getInboundRouteListLabel();
 
@@ -68,7 +67,7 @@ trait InboundRouteRegistryTrait
             $schemaDocument->addValueToValueSet('inboundRoutes/all', $keyword);
             $schemaDocument->addValueToValueSet('inboundRoutes/' . $integration . '/all', $keyword);
 
-            $integrationSchema = $this->getIntegrationSchema($schemaDocument, $integration, $integrationLabel);
+            $integrationSchema = $this->getIntegrationSchema($schemaDocument, $integration, $integrationLabel, $integrationWeight);
             $integrationInboundSchema = $integrationSchema->getProperty(CollectorConfigurationInterface::KEY_INBOUND_ROUTES);
             if (!$integrationInboundSchema instanceof ContainerSchema) {
                 $integrationInboundSchema = new ContainerSchema();
