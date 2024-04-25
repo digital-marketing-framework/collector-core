@@ -99,6 +99,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     public static function getSchema(): SchemaInterface
     {
         $schema = new ContainerSchema();
+        $schema->getRenderingDefinition()->setIcon('content-modifier');
 
         $transformationSchema = new DataTransformationReferenceSchema(required: false, firstEmptyOptionLabel: '[Passthrough]');
         $transformationSchema->getRenderingDefinition()->setLabel('Preprocessing Data Transformation');

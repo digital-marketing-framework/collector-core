@@ -55,7 +55,7 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
 
     public static function getIntegrationIcon(): ?string
     {
-        return null;
+        return 'integration';
     }
 
     public static function getInboundRouteListLabel(): ?string
@@ -134,6 +134,7 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
     public static function getSchema(): SchemaInterface
     {
         $schema = new ContainerSchema();
+        $schema->getRenderingDefinition()->setIcon('inbound-route');
 
         $label = static::getLabel();
         if ($label !== null) {

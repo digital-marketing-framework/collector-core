@@ -40,7 +40,9 @@ class Registry extends CoreRegistry implements RegistryInterface
         $transformationName = new StringSchema('transformationName');
         $transformation = DataTransformation::getSchema();
 
-        return new MapSchema($transformation, $transformationName);
+        $transformationsSchema = new MapSchema($transformation, $transformationName);
+        $transformationsSchema->getRenderingDefinition()->setIcon('data-transformations');
+        return $transformationsSchema;
     }
 
     public function addConfigurationSchema(SchemaDocument $schemaDocument): void
@@ -58,6 +60,7 @@ class Registry extends CoreRegistry implements RegistryInterface
         $this->addInboundRoutesSchemas($schemaDocument);
 
         $personalizationSchema = new ContainerSchema();
+        $personalizationSchema->getRenderingDefinition()->setIcon('personalization');
 
         $personalizationSchema->addProperty(
             CollectorConfigurationInterface::KEY_DEFAULT_DATA_TRANSFORMATION,

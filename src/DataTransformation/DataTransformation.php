@@ -70,6 +70,7 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
     public static function getSchema(): SchemaInterface
     {
         $schema = new ContainerSchema();
+        $schema->getRenderingDefinition()->setIcon('data-transformation');
 
         $visibility = new StringSchema(static::DEFAULT_VISIBILITY);
         $visibility->getAllowedValues()->addValue(static::VISIBILITY_DISABLED);
