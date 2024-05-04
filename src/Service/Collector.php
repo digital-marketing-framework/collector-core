@@ -132,6 +132,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         if (!$preparedContext instanceof WriteableContextInterface) {
             $preparedContext = $this->prepareContext($configuration, $fieldGroups);
         }
+
         $generalCacheTimeoutInSeconds = $configuration->getGeneralCacheTimeoutInSeconds();
         $this->cache->setTimeoutInSeconds($generalCacheTimeoutInSeconds);
 
@@ -161,6 +162,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
                     if ($cacheTimeoutInSeconds > 0) {
                         $this->save($data, $identifiers, $cacheTimeoutInSeconds);
                     }
+
                     $result = CacheUtility::mergeData([$result, $data], override: false);
                 }
             } catch (InvalidIdentifierException $e) {

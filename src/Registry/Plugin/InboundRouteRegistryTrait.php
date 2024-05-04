@@ -9,9 +9,8 @@ use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\PluginRegistryTrait;
 use DigitalMarketingFramework\Core\SchemaDocument\FieldDefinition\FieldDefinition;
 use DigitalMarketingFramework\Core\SchemaDocument\FieldDefinition\FieldListDefinition;
-use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
-use DigitalMarketingFramework\Core\Utility\GeneralUtility;
+use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 
 trait InboundRouteRegistryTrait
 {
@@ -44,14 +43,12 @@ trait InboundRouteRegistryTrait
     {
         foreach ($this->getAllPluginClasses(InboundRouteInterface::class) as $keyword => $class) {
             $schema = $class::getSchema();
-            $integration = $class::getIntegrationName();
-            $integrationLabel = $class::getIntegrationLabel();
+            $integrationInfo = $class::getDefaultIntegrationInfo();
             $label = $class::getLabel();
-            $inboundRouteListLabel = $class::getInboundRouteListLabel();
 
             $fields = $class::getDefaultFields();
             if ($fields !== []) {
-                $fieldListDefinition = new FieldListDefinition(sprintf('collector.in.defaults.%s.%s', $integration, $keyword));
+                $fieldListDefinition = new FieldListDefinition(sprintf('collector.in.defaults.%s.%s', $integrationInfo->getName(), $keyword));
                 foreach ($fields as $field) {
                     if (!$field instanceof FieldDefinition) {
                         $field = new FieldDefinition($field);
@@ -64,19 +61,17 @@ trait InboundRouteRegistryTrait
             }
 
             $schemaDocument->addValueToValueSet('inboundRoutes/all', $keyword);
-            $schemaDocument->addValueToValueSet('inboundRoutes/' . $integration . '/all', $keyword);
+            $schemaDocument->addValueToValueSet('inboundRoutes/' . $integrationInfo->getName() . '/all', $keyword);
 
-            $integrationSchema = $this->getIntegrationSchemaForPluginClass($schemaDocument, $class);
-            $integrationInboundSchema = $integrationSchema->getProperty(CollectorConfigurationInterface::KEY_INBOUND_ROUTES);
+            $integrationSchema = $this->getIntegrationSchemaForPlugin($schemaDocument, $integrationInfo);
+            $integrationInboundSchema = $integrationSchema->getProperty(CollectorConfigurationInterface::KEY_INBOUND_ROUTES)?->getSchema();
             if (!$integrationInboundSchema instanceof ContainerSchema) {
                 $integrationInboundSchema = new ContainerSchema();
-                if ($inboundRouteListLabel === null) {
-                    $inboundRouteListLabel = 'Routes from ' . ($integrationLabel ?? GeneralUtility::getLabelFromValue($integration));
-                }
-                $integrationInboundSchema->getRenderingDefinition()->setLabel($inboundRouteListLabel);
+                $integrationInboundSchema->getRenderingDefinition()->setLabel($integrationInfo->getInboundRouteListLabel());
                 $integrationInboundSchema->getRenderingDefinition()->setIcon('inbound-routes');
                 $integrationSchema->addProperty(CollectorConfigurationInterface::KEY_INBOUND_ROUTES, $integrationInboundSchema);
             }
+
             $property = $integrationInboundSchema->addProperty($keyword, $schema);
             $property->getRenderingDefinition()->setLabel($label);
         }

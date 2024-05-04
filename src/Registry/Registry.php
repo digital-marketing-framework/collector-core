@@ -42,6 +42,7 @@ class Registry extends CoreRegistry implements RegistryInterface
 
         $transformationsSchema = new MapSchema($transformation, $transformationName);
         $transformationsSchema->getRenderingDefinition()->setIcon('data-transformations');
+
         return $transformationsSchema;
     }
 

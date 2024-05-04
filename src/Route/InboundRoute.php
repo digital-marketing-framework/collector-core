@@ -11,8 +11,8 @@ use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
+use DigitalMarketingFramework\Core\Integration\IntegrationInfo;
 use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
-use DigitalMarketingFramework\Core\Route\Route;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\BooleanSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\DataMapperGroupReferenceSchema;
@@ -37,35 +37,24 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
 
     protected const KEY_DATA_MAP = 'dataMap';
 
+    protected IntegrationInfo $integrationInfo;
+
     public function __construct(
         string $keyword,
         RegistryInterface $registry,
         protected CollectorConfigurationInterface $collectorConfiguration,
+        ?IntegrationInfo $integrationInfo = null,
     ) {
         parent::__construct($keyword, $registry);
-        $this->configuration = $collectorConfiguration->getInboundRouteConfiguration(static::getIntegrationName(), $this->getKeyword());
+        $this->integrationInfo = $integrationInfo ?? static::getDefaultIntegrationInfo();
+        $this->configuration = $collectorConfiguration->getInboundRouteConfiguration($this->integrationInfo->getName(), $this->getKeyword());
     }
 
-    abstract public static function getIntegrationName(): string;
+    abstract public static function getDefaultIntegrationInfo(): IntegrationInfo;
 
-    public static function getIntegrationLabel(): ?string
+    public function getIntegrationInfo(): IntegrationInfo
     {
-        return null;
-    }
-
-    public static function getIntegrationIcon(): ?string
-    {
-        return 'integration';
-    }
-
-    public static function getInboundRouteListLabel(): ?string
-    {
-        return null;
-    }
-
-    public static function getIntegrationWeight(): int
-    {
-        return static::INTEGRATION_WEIGHT_DEFAULT;
+        return $this->integrationInfo;
     }
 
     public function getProvidedFieldGroups(): array

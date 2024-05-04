@@ -51,7 +51,7 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
 
     public function getDataTransformationName(string $transformationId): ?string;
 
-    public function dataTransformationExists(string $transformatioName): bool;
+    public function dataTransformationExists(string $transformationName): bool;
 
     /**
      * @return array<string,mixed>

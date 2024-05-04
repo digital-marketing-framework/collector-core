@@ -17,6 +17,7 @@ abstract class FrontendContentModifier extends ContentModifier implements Fronte
     {
         $schema = parent::getSchema();
         $schema->getRenderingDefinition()->setIcon('frontend-content-modifier');
+
         return $schema;
     }
 }

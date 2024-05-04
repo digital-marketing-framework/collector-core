@@ -13,8 +13,6 @@ interface InboundRouteInterface extends RouteInterface
 {
     public const STANDARD_FIELD_GROUP = '';
 
-    public static function getInboundRouteListLabel(): ?string;
-
     /**
      * @return array<string>
      */
