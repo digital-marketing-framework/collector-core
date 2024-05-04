@@ -12,6 +12,7 @@ use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
 use DigitalMarketingFramework\Core\Integration\IntegrationInfo;
+use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\BooleanSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
@@ -137,7 +138,16 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
         $schema->addProperty(static::KEY_PRIORITY, $prioritySchema);
 
         $cacheLifetimeSchema = new InheritableIntegerSchema();
-        $cacheLifetimeSchema->getRenderingDefinition()->setLabel('Cache lifetime (seconds)');
+        $cacheLifetimeSchema->addReference(
+            sprintf(
+                '/%s/%s/%s/%s',
+                ConfigurationInterface::KEY_INTEGRATIONS,
+                ConfigurationInterface::KEY_GENERAL_INTEGRATION,
+                CollectorConfigurationInterface::KEY_INBOUND_ROUTES,
+                CollectorConfigurationInterface::KEY_CACHE_TIMEOUT
+            ),
+            label: 'Original Value ({.})'
+        );
         $schema->addProperty(static::KEY_CACHE_TIMEOUT_IN_SECONDS, $cacheLifetimeSchema);
 
         $schema->addProperty(static::KEY_DATA_MAP, new CustomSchema(DataMapperGroupReferenceSchema::TYPE));
