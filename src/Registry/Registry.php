@@ -46,9 +46,9 @@ class Registry extends CoreRegistry implements RegistryInterface
         return $transformationsSchema;
     }
 
-    public function addConfigurationSchema(SchemaDocument $schemaDocument): void
+    public function addConfigurationSchemaDocument(SchemaDocument $schemaDocument): void
     {
-        parent::addConfigurationSchema($schemaDocument);
+        parent::addConfigurationSchemaDocument($schemaDocument);
 
         $generalInboundConfiguration = new ContainerSchema();
         $generalInboundConfiguration->getRenderingDefinition()->setIcon('inbound-routes');
