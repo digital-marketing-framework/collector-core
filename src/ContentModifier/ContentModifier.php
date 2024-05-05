@@ -2,19 +2,19 @@
 
 namespace DigitalMarketingFramework\Collector\Core\ContentModifier;
 
-use DigitalMarketingFramework\Collector\Core\ConfigurationDocument\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
+use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareTrait;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\ContainerSchema;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorContextInterface;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 
 abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, CollectorAwareInterface, DataProcessorAwareInterface
 {
@@ -99,6 +99,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     public static function getSchema(): SchemaInterface
     {
         $schema = new ContainerSchema();
+        $schema->getRenderingDefinition()->setIcon('content-modifier');
 
         $transformationSchema = new DataTransformationReferenceSchema(required: false, firstEmptyOptionLabel: '[Passthrough]');
         $transformationSchema->getRenderingDefinition()->setLabel('Preprocessing Data Transformation');

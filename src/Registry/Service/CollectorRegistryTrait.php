@@ -9,7 +9,7 @@ trait CollectorRegistryTrait
 {
     protected CollectorInterface $collector;
 
-    abstract protected function createObject(string $class, array $arguments = []): object;
+    abstract public function createObject(string $class, array $arguments = []): object;
 
     public function getCollector(): CollectorInterface
     {

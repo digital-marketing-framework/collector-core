@@ -8,7 +8,7 @@ use DigitalMarketingFramework\Core\Utility\GeneralUtility;
 
 class MaskedValueModifier extends ValueModifier
 {
-    protected function modifyValue(null|string|ValueInterface $value): null|string|ValueInterface
+    protected function modifyValue(string|ValueInterface|null $value): string|ValueInterface|null
     {
         if ($value !== null && (string)$value !== '') {
             return GeneralUtility::maskValue((string)$value);

@@ -6,9 +6,9 @@ use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 
 interface CollectorConfigurationInterface extends ConfigurationInterface
 {
-    public const KEY_COLLECTOR = 'collector';
+    public const KEY_INBOUND_ROUTES = 'inboundRoutes';
 
-    public const KEY_DATA_COLLECTORS = 'collectors';
+    public const KEY_PERSONALIZATION = 'personalization';
 
     public const KEY_DATA_TRANSFORMATIONS = 'dataTransformations';
 
@@ -16,17 +16,33 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
 
     public const KEY_CONTENT_MODIFIERS = 'contentModifiers';
 
-    /**
-     * @return array<string,mixed>
-     */
-    public function getCollectorConfiguration(): array;
+    public const KEY_CACHE_TIMEOUT = 'cacheTimeoutInSeconds';
 
-    public function dataCollectorExists(string $dataCollectorName): bool;
+    public const DEFAULT_CACHE_TIMEOUT = 1000;
 
     /**
      * @return array<string,mixed>
      */
-    public function getDataCollectorConfiguration(string $dataCollectorName): array;
+    public function getInboundConfiguration(string $integrationName): array;
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getGeneralInboundConfiguration(): array;
+
+    public function getGeneralCacheTimeoutInSeconds(): int;
+
+    public function inboundRouteExists(string $integrationName, string $inboundRouteName): bool;
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getInboundRouteConfiguration(string $integrationName, string $inboundRouteName): array;
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getPersonalizationConfiguration(): array;
 
     /**
      * @return array<string,array{uuid:string,key:string,weight:int,value:array<string,mixed>}>
@@ -35,7 +51,7 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
 
     public function getDataTransformationName(string $transformationId): ?string;
 
-    public function dataTransformationExists(string $transformatioName): bool;
+    public function dataTransformationExists(string $transformationName): bool;
 
     /**
      * @return array<string,mixed>

@@ -4,9 +4,9 @@ namespace DigitalMarketingFramework\Collector\Core\Registry\Plugin;
 
 use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierInterface;
 use DigitalMarketingFramework\Collector\Core\ContentModifier\FrontendContentModifierInterface;
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\PluginRegistryInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 
 interface ContentModifierRegistryInterface extends PluginRegistryInterface
 {

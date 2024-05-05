@@ -1,8 +1,8 @@
 <?php
 
-namespace DigitalMarketingFramework\Collector\Core\ConfigurationDocument\SchemaDocument\Schema\Plugin\ContentModifier;
+namespace DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Plugin\ContentModifier;
 
-use DigitalMarketingFramework\Core\ConfigurationDocument\SchemaDocument\Schema\SwitchSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\SwitchSchema;
 
 class ContentModifierSchema extends SwitchSchema
 {
