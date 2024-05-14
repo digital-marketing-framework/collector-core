@@ -11,7 +11,7 @@ use DigitalMarketingFramework\Core\Route\RouteInterface;
 
 interface InboundRouteInterface extends RouteInterface
 {
-    public const STANDARD_FIELD_GROUP = '';
+    public const STANDARD_FIELD_GROUP = 'default';
 
     /**
      * @return array<string>

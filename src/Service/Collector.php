@@ -125,7 +125,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
 
     public function collect(
         CollectorConfigurationInterface $configuration,
-        array $fieldGroups = [],
+        array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP],
         ?WriteableContextInterface $preparedContext = null,
         bool $invalidIdentifierHandling = false
     ): DataInterface {
