@@ -68,16 +68,16 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
         return (bool)$this->getConfig(static::KEY_ENABLED);
     }
 
-    protected function prepareContext(ContextInterface $source, WriteableContextInterface $target): void
+    protected function prepareContext(WriteableContextInterface $context): void
     {
     }
 
     abstract protected function collect(IdentifierInterface $identifier): ?InboundRouteResultInterface;
 
-    public function addContext(ContextInterface $source, WriteableContextInterface $target): void
+    public function addContext(WriteableContextInterface $context): void
     {
         if ($this->proceed()) {
-            $this->prepareContext($source, $target);
+            $this->prepareContext($context);
         }
     }
 

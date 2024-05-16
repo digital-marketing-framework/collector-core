@@ -31,7 +31,7 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
     ) {
         parent::__construct($keyword);
         if (!$collectorConfiguration->dataTransformationExists($keyword)) {
-            throw new DigitalMarketingFrameworkException(sprintf('data transformation "%s" not found', $keyword));
+            throw new DigitalMarketingFrameworkException(sprintf('Data transformation "%s" not found', $keyword));
         }
 
         $this->configuration = $collectorConfiguration->getDataTransformationConfiguration($keyword);
@@ -50,7 +50,7 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
             static::VISIBILITY_DISABLED => false,
             static::VISIBILITY_PRIVATE => !$this->public,
             static::VISIBILITY_PUBLIC => true,
-            default => throw new DigitalMarketingFrameworkException(sprintf('unknow visibility status "%s" for data transformation "%s"', $visibility, $this->keyword)),
+            default => throw new DigitalMarketingFrameworkException(sprintf('Unknown visibility status "%s" for data transformation "%s"', $visibility, $this->keyword)),
         };
     }
 

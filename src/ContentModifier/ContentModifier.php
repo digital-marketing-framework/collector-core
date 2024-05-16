@@ -5,6 +5,7 @@ namespace DigitalMarketingFramework\Collector\Core\ContentModifier;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
+use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
 use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareTrait;
@@ -16,9 +17,8 @@ use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 
-abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, CollectorAwareInterface, DataProcessorAwareInterface
+abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, DataProcessorAwareInterface
 {
-    use CollectorAwareTrait;
     use DataProcessorAwareTrait;
 
     public const KEY_DATA_TRANSFORMATION_ID = 'dataTransformationId';
@@ -46,9 +46,9 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         return $this->contentModifierName;
     }
 
-    protected function getDataProcessorContext(): DataProcessorContextInterface
+    protected function getDataProcessorContext(DataInterface $data): DataProcessorContextInterface
     {
-        return $this->dataProcessor->createContext($this->getData(), $this->collectorConfiguration);
+        return $this->dataProcessor->createContext($data, $this->collectorConfiguration);
     }
 
     protected function dataTransformationMustBePublic(): bool
@@ -56,7 +56,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         return false;
     }
 
-    protected function transformData(DataInterface $data): DataInterface
+    public function transformData(DataInterface $data): DataInterface
     {
         $id = $this->getConfig(static::KEY_DATA_TRANSFORMATION_ID);
         $name = $id === '' ? null : $this->collectorConfiguration->getDataTransformationName($id);
@@ -81,19 +81,14 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         return $data;
     }
 
-    protected function invalidIdentifierHandling(): bool
+    public function invalidIdentifierHandling(): bool
     {
         return true;
     }
 
-    protected function getData(): DataInterface
+    public function getRequiredFieldGroups(): ?array
     {
-        if (!isset($this->data)) {
-            $this->data = $this->collector->collect($this->collectorConfiguration, invalidIdentifierHandling: $this->invalidIdentifierHandling());
-            $this->data = $this->transformData($this->data);
-        }
-
-        return $this->data;
+        return [InboundRouteInterface::STANDARD_FIELD_GROUP];
     }
 
     public static function getSchema(): SchemaInterface

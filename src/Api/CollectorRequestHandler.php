@@ -6,10 +6,14 @@ use DigitalMarketingFramework\Collector\Core\ContentModifier\FrontendContentModi
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
+use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorInterface;
 use DigitalMarketingFramework\Core\Api\ApiException;
 use DigitalMarketingFramework\Core\ConfigurationDocument\ConfigurationDocumentManagerInterface;
+use DigitalMarketingFramework\Core\Context\WriteableContext;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
+use DigitalMarketingFramework\Core\Model\Data\Data;
+use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\Utility\GeneralUtility;
 use DigitalMarketingFramework\Core\Utility\MapUtility;
 
@@ -50,6 +54,25 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface
         return $plugins;
     }
 
+    protected function collectData(CollectorConfigurationInterface $configuration, ?array $requiredFieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP]): DataInterface
+    {
+        if ($requiredFieldGroups === null) {
+            return new Data();
+        }
+
+        $context = new WriteableContext();
+        $context->setResponsive(true);
+        $data = $this->collector->prepareContextAndCollect(
+            $configuration,
+            $context,
+            $requiredFieldGroups,
+            true
+        );
+        $context->applyResponseData();
+
+        return $data;
+    }
+
     public function processContentModifier(string $plugin, string $name): array
     {
         $configuration = $this->getConfiguration();
@@ -70,7 +93,9 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface
         }
 
         try {
-            return $contentModifier->getFrontendData();
+            $data = $this->collectData($configuration, $contentModifier->getRequiredFieldGroups());
+
+            return $contentModifier->getFrontendData($data);
         } catch (DigitalMarketingFrameworkException $e) {
             throw new ApiException($e->getMessage(), 500, $e);
         }
@@ -105,7 +130,8 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface
         }
 
         try {
-            $data = $this->collector->collect($configuration, invalidIdentifierHandling: true);
+            // TODO field groups configurable in data transformation definition/configuration?
+            $data = $this->collectData($configuration);
             $data = $transformation->transform($data);
         } catch (DigitalMarketingFrameworkException $e) {
             throw new ApiException($e->getMessage(), 500, $e);

@@ -18,7 +18,7 @@ interface InboundRouteInterface extends RouteInterface
      */
     public function getProvidedFieldGroups(): array;
 
-    public function addContext(ContextInterface $source, WriteableContextInterface $target): void;
+    public function addContext(WriteableContextInterface $context): void;
 
     /**
      * @throws InvalidIdentifierException
