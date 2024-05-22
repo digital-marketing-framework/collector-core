@@ -14,6 +14,10 @@ abstract class FrontendContentModifier extends ContentModifier implements Fronte
         return [];
     }
 
+    public function activateFrontendScripts(): void
+    {
+    }
+
     public static function getSchema(): SchemaInterface
     {
         $schema = parent::getSchema();

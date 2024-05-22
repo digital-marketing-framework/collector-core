@@ -15,4 +15,6 @@ interface FrontendContentModifierInterface extends ContentModifierInterface
      * @return array<string,mixed>
      */
     public function getFrontendSettings(): array;
+
+    public function activateFrontendScripts(): void;
 }

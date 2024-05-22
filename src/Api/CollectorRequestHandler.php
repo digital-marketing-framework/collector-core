@@ -9,16 +9,24 @@ use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorInterface;
 use DigitalMarketingFramework\Core\Api\ApiException;
+use DigitalMarketingFramework\Core\Api\EndPoint\EndPointStorageAwareInterface;
+use DigitalMarketingFramework\Core\Api\EndPoint\EndPointStorageAwareTrait;
 use DigitalMarketingFramework\Core\ConfigurationDocument\ConfigurationDocumentManagerInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContext;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
+use DigitalMarketingFramework\Core\Log\LoggerAwareInterface;
+use DigitalMarketingFramework\Core\Log\LoggerAwareTrait;
+use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
 use DigitalMarketingFramework\Core\Model\Data\Data;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\Utility\GeneralUtility;
 use DigitalMarketingFramework\Core\Utility\MapUtility;
 
-class CollectorRequestHandler implements CollectorRequestHandlerInterface
+class CollectorRequestHandler implements CollectorRequestHandlerInterface, LoggerAwareInterface, EndPointStorageAwareInterface
 {
+    use LoggerAwareTrait;
+    use EndPointStorageAwareTrait;
+
     protected ConfigurationDocumentManagerInterface $configurationDocumentManager;
 
     protected CollectorInterface $collector;
@@ -32,26 +40,15 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface
         $this->collector = $this->registry->getCollector();
     }
 
-    protected function getConfiguration(): CollectorConfigurationInterface
+    protected function getConfiguration(EndPointInterface $endPoint): CollectorConfigurationInterface
     {
-        if (!isset($this->collectorConfiguration)) {
-            $configStack = $this->configurationDocumentManager->getDefaultConfigurationStack();
-            $this->collectorConfiguration = new CollectorConfiguration($configStack);
-        }
-        return $this->collectorConfiguration;
+        $configStack = $this->configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument());
+        return new CollectorConfiguration($configStack);
     }
 
-    public function getContentModifierPlugins(): array
+    protected function endPointAllowed(EndPointInterface $endPoint, bool $frontend = false): bool
     {
-        $plugins = [];
-        $configuration = $this->getConfiguration();
-        $ids = $configuration->getContentModifierIds();
-        foreach ($ids as $id) {
-            $plugin = $configuration->getContentModifierKeyword($id);
-            $name = $configuration->getContentModifierName($id);
-            $plugins[$plugin][] = $name;
-        }
-        return $plugins;
+        return $endPoint->getEnabled() && $endPoint->getPullEnabled() && (!$frontend || $endPoint->getExposeToFrontend());
     }
 
     protected function collectData(CollectorConfigurationInterface $configuration, ?array $requiredFieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP]): DataInterface
@@ -73,9 +70,33 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface
         return $data;
     }
 
-    public function processContentModifier(string $plugin, string $name): array
+    public function getContentModifierPlugins(bool $frontend = false): array
     {
-        $configuration = $this->getConfiguration();
+        $plugins = [];
+        foreach ($this->endPointStorage->getAllEndPoints() as $endPoint) {
+            if (!$this->endPointAllowed($endPoint, $frontend)) {
+                continue;
+            }
+
+            $configuration = $this->getConfiguration($endPoint);
+            $ids = $configuration->getContentModifierIds();
+            foreach ($ids as $id) {
+                $plugin = $configuration->getContentModifierKeyword($id);
+                $name = $configuration->getContentModifierName($id);
+                $plugins[$endPoint->getName()][$plugin][] = $name;
+            }
+        }
+
+        return $plugins;
+    }
+
+    public function processContentModifier(EndPointInterface $endPoint, string $plugin, string $name): array
+    {
+        if (!$this->endPointAllowed($endPoint)) {
+            throw new ApiException('End point not found or disabled', 404);
+        }
+
+        $configuration = $this->getConfiguration($endPoint);
         $contentModifierId = $configuration->getContentModifierIdFromName($name);
 
         if ($contentModifierId === null) {
@@ -101,24 +122,35 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface
         }
     }
 
-    public function getUserDataSets(): array
+    public function getUserDataSets(bool $frontend = false): array
     {
         $sets = [];
-        $configuration = $this->getConfiguration();
-        $items = $configuration->getDataTransformationConfigurationItems();
-        foreach ($items as $item) {
-            $keyword = MapUtility::getItemKey($item);
-            $transformation = $this->registry->getDataTransformation($keyword, $configuration, true);
-            if ($transformation?->allowed()) {
-                $sets[] = $keyword;
+        foreach ($this->endPointStorage->getAllEndPoints() as $endPoint) {
+            if (!$this->endPointAllowed($endPoint, $frontend)) {
+                continue;
+            }
+
+            $configuration = $this->getConfiguration($endPoint);
+            $items = $configuration->getDataTransformationConfigurationItems();
+            foreach ($items as $item) {
+                $keyword = MapUtility::getItemKey($item);
+                $transformation = $this->registry->getDataTransformation($keyword, $configuration, true);
+                if ($transformation?->allowed()) {
+                    $sets[$endPoint->getName()][] = $keyword;
+                }
             }
         }
+
         return $sets;
     }
 
-    public function processUserData(string $name): array
+    public function processUserData(EndPointInterface $endPoint, string $name): array
     {
-        $configuration = $this->getConfiguration();
+        if (!$this->endPointAllowed($endPoint)) {
+            throw new ApiException('End point not found or disabled', 404);
+        }
+
+        $configuration = $this->getConfiguration($endPoint);
         if (!$configuration->dataTransformationExists($name)) {
             throw new ApiException(sprintf('Data transformation "%s" unknown', $name));
         }

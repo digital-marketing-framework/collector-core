@@ -13,6 +13,7 @@ use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorContextInterface;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
+use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
@@ -44,6 +45,17 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     public function getContentModifierName(): string
     {
         return $this->contentModifierName;
+    }
+
+    public function getPublicKey(EndPointInterface $endPoint): string
+    {
+        return implode(':', [
+            'collector',
+            'contentModifiers',
+            $this->getKeyword(),
+            $endPoint->getName(),
+            $this->getContentModifierName(),
+        ]);
     }
 
     protected function getDataProcessorContext(DataInterface $data): DataProcessorContextInterface
@@ -101,5 +113,15 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         $schema->addProperty(static::KEY_DATA_TRANSFORMATION_ID, $transformationSchema);
 
         return $schema;
+    }
+
+    public function getBackendSettingsSchema(): SchemaInterface
+    {
+        return new ContainerSchema();
+    }
+
+    public function getBackendData(array $settings): array
+    {
+        return [];
     }
 }

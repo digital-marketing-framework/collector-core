@@ -5,6 +5,7 @@ namespace DigitalMarketingFramework\Collector\Core\Route;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Result\InboundRouteResultInterface;
 use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
+use DigitalMarketingFramework\Collector\Core\Plugin\IntegrationPlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Core\Context\ContextInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
@@ -21,8 +22,9 @@ use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\InheritableInteg
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\IntegerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 
-abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteInterface, DataProcessorAwareInterface
+abstract class InboundRoute extends IntegrationPlugin implements InboundRouteInterface, DataProcessorAwareInterface
 {
     use DataProcessorAwareTrait;
 
@@ -38,16 +40,18 @@ abstract class InboundRoute extends ConfigurablePlugin implements InboundRouteIn
 
     protected const KEY_DATA_MAP = 'dataMap';
 
-    protected IntegrationInfo $integrationInfo;
-
     public function __construct(
         string $keyword,
         RegistryInterface $registry,
         protected CollectorConfigurationInterface $collectorConfiguration,
         ?IntegrationInfo $integrationInfo = null,
     ) {
-        parent::__construct($keyword, $registry);
-        $this->integrationInfo = $integrationInfo ?? static::getDefaultIntegrationInfo();
+        parent::__construct(
+            $keyword,
+            $integrationInfo ?? static::getDefaultIntegrationInfo(),
+            $this->collectorConfiguration,
+            $registry
+        );
         $this->configuration = $collectorConfiguration->getInboundRouteConfiguration($this->integrationInfo->getName(), $this->getKeyword());
     }
 

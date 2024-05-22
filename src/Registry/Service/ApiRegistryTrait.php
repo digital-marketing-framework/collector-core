@@ -8,6 +8,8 @@ use DigitalMarketingFramework\Collector\Core\Api\RouteResolver\CollectorRouteRes
 use DigitalMarketingFramework\Collector\Core\Api\RouteResolver\CollectorRouteResolverInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
+use DigitalMarketingFramework\Core\Api\RouteResolver\RouteResolverInterface;
+use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
 use DigitalMarketingFramework\Core\Utility\GeneralUtility;
 
 trait ApiRegistryTrait
@@ -44,11 +46,12 @@ trait ApiRegistryTrait
         $this->collectorRequestHandler = $collectorRequestHandler;
     }
 
-    protected function addContentModifierFrontendSettings(array &$settings, CollectorConfigurationInterface $configuration): void
+    protected function addContentModifierFrontendSettings(array &$settings, EndPointInterface $endPoint, CollectorConfigurationInterface $configuration): void
     {
         $contentModifierRoute = $this->getCollectorApiRouteResolver()->getContentModifierRoute();
         $contentModifiers = $this->getFrontendContentModifiers($configuration);
         $entryRouteResolver = $this->getApiEntryRouteResolver();
+        $endPointName = $endPoint->getName();
 
         foreach ($contentModifiers as $contentModifier) {
             $keyword = $contentModifier->getKeyword();
@@ -56,8 +59,9 @@ trait ApiRegistryTrait
             $contentModifierSettings = $contentModifier->getFrontendSettings();
 
             $route = $contentModifierRoute->getResourceRoute(
-                idAffix: implode(':', [$keyword, $name]),
+                idAffix: implode(':', [$keyword, $endPointName, $name]),
                 variables: [
+                    RouteResolverInterface::VARIABLE_END_POINT => GeneralUtility::slugify($endPointName),
                     CollectorRouteResolverInterface::VARIABLE_PLUGIN_TYPE => GeneralUtility::slugify($keyword),
                     CollectorRouteResolverInterface::VARIABLE_PLUGIN_ID => GeneralUtility::slugify($name),
                 ]
@@ -69,16 +73,18 @@ trait ApiRegistryTrait
         }
     }
 
-    protected function addDataTransformationFrontendSettings(array &$settings, CollectorConfigurationInterface $configuration): void
+    protected function addDataTransformationFrontendSettings(array &$settings, EndPointInterface $endPoint, CollectorConfigurationInterface $configuration): void
     {
         $transformationRoute = $this->getCollectorApiRouteResolver()->getUserDataRoute();
         $transformationNames = $this->getPublicDataTransformationNames($configuration);
         $entryRouteResolver = $this->getApiEntryRouteResolver();
+        $endPointName = $endPoint->getName();
 
         foreach ($transformationNames as $transformationName) {
             $route = $transformationRoute->getResourceRoute(
-                idAffix: $transformationName,
+                idAffix: implode(':', [$endPointName, $transformationName]),
                 variables: [
+                    RouteResolverInterface::VARIABLE_END_POINT => GeneralUtility::slugify($endPointName),
                     CollectorRouteResolverInterface::VARIABLE_TRANSFORMATION_ID => GeneralUtility::slugify($transformationName),
                 ]
             );
@@ -93,9 +99,16 @@ trait ApiRegistryTrait
     {
         $settings = parent::getFrontendSettings();
         $configurationDocumentManager = $this->getConfigurationDocumentManager();
-        $configuration = new CollectorConfiguration($configurationDocumentManager->getDefaultConfigurationStack());
-        $this->addContentModifierFrontendSettings($settings, $configuration);
-        $this->addDataTransformationFrontendSettings($settings, $configuration);
+        $endPointStorage = $this->getEndPointStorage();
+        foreach ($endPointStorage->getAllEndPoints() as $endPoint) {
+            if (!$endPoint->getEnabled() || !$endPoint->getPullEnabled() || !$endPoint->getExposeToFrontend()) {
+                continue;
+            }
+
+            $configuration = new CollectorConfiguration($configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument()));
+            $this->addContentModifierFrontendSettings($settings, $endPoint, $configuration);
+            $this->addDataTransformationFrontendSettings($settings, $endPoint, $configuration);
+        }
         return $settings;
     }
 }
