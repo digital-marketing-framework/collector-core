@@ -43,6 +43,7 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface, Logge
     protected function getConfiguration(EndPointInterface $endPoint): CollectorConfigurationInterface
     {
         $configStack = $this->configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument());
+
         return new CollectorConfiguration($configStack);
     }
 
@@ -51,6 +52,9 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface, Logge
         return $endPoint->getEnabled() && $endPoint->getPullEnabled() && (!$frontend || $endPoint->getExposeToFrontend());
     }
 
+    /**
+     * @param array<string>|null $requiredFieldGroups
+     */
     protected function collectData(CollectorConfigurationInterface $configuration, ?array $requiredFieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP]): DataInterface
     {
         if ($requiredFieldGroups === null) {
@@ -59,6 +63,7 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface, Logge
 
         $context = new WriteableContext();
         $context->setResponsive(true);
+
         $data = $this->collector->prepareContextAndCollect(
             $configuration,
             $context,
@@ -90,7 +95,7 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface, Logge
         return $plugins;
     }
 
-    public function processContentModifier(EndPointInterface $endPoint, string $plugin, string $name): array
+    public function processContentModifier(EndPointInterface $endPoint, string $plugin, string $name): array|false
     {
         if (!$this->endPointAllowed($endPoint)) {
             throw new ApiException('End point not found or disabled', 404);
@@ -135,7 +140,7 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface, Logge
             foreach ($items as $item) {
                 $keyword = MapUtility::getItemKey($item);
                 $transformation = $this->registry->getDataTransformation($keyword, $configuration, true);
-                if ($transformation?->allowed()) {
+                if ($transformation->allowed()) {
                     $sets[$endPoint->getName()][] = $keyword;
                 }
             }

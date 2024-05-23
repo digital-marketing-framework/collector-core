@@ -28,6 +28,7 @@ interface ContentModifierInterface extends ConfigurablePluginInterface
 
     /**
      * @param array<string,mixed> $settings
+     *
      * @return array<string,mixed>
      */
     public function getBackendData(array $settings): array;

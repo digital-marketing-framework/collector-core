@@ -132,6 +132,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         $this->registry->pushContext($context);
         $data = $this->collect($configuration, $fieldGroups, $invalidIdentifierHandling);
         $this->registry->popContext();
+
         return $data;
     }
 

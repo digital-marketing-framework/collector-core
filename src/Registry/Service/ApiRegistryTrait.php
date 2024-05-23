@@ -23,6 +23,7 @@ trait ApiRegistryTrait
         if (!isset($this->collectorRouteResolver)) {
             $this->collectorRouteResolver = $this->createObject(CollectorRouteResolver::class, [$this]);
         }
+
         return $this->collectorRouteResolver;
     }
 
@@ -38,6 +39,7 @@ trait ApiRegistryTrait
         if (!isset($this->collectorRequestHandler)) {
             $this->collectorRequestHandler = $this->createObject(CollectorRequestHandler::class, [$this]);
         }
+
         return $this->collectorRequestHandler;
     }
 
@@ -46,6 +48,9 @@ trait ApiRegistryTrait
         $this->collectorRequestHandler = $collectorRequestHandler;
     }
 
+    /**
+     * @param array<string,mixed> $settings
+     */
     protected function addContentModifierFrontendSettings(array &$settings, EndPointInterface $endPoint, CollectorConfigurationInterface $configuration): void
     {
         $contentModifierRoute = $this->getCollectorApiRouteResolver()->getContentModifierRoute();
@@ -73,6 +78,9 @@ trait ApiRegistryTrait
         }
     }
 
+    /**
+     * @param array<string,mixed> $settings
+     */
     protected function addDataTransformationFrontendSettings(array &$settings, EndPointInterface $endPoint, CollectorConfigurationInterface $configuration): void
     {
         $transformationRoute = $this->getCollectorApiRouteResolver()->getUserDataRoute();
@@ -109,6 +117,7 @@ trait ApiRegistryTrait
             $this->addContentModifierFrontendSettings($settings, $endPoint, $configuration);
             $this->addDataTransformationFrontendSettings($settings, $endPoint, $configuration);
         }
+
         return $settings;
     }
 }

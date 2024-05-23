@@ -4,10 +4,8 @@ namespace DigitalMarketingFramework\Collector\Core\Route;
 
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Result\InboundRouteResultInterface;
-use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
 use DigitalMarketingFramework\Collector\Core\Plugin\IntegrationPlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
-use DigitalMarketingFramework\Core\Context\ContextInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
@@ -22,7 +20,6 @@ use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\InheritableInteg
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\IntegerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
-use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 
 abstract class InboundRoute extends IntegrationPlugin implements InboundRouteInterface, DataProcessorAwareInterface
 {

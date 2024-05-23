@@ -7,7 +7,7 @@ use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 interface FrontendContentModifierInterface extends ContentModifierInterface
 {
     /**
-     * @return array<mixed>|false
+     * @return array<string,mixed>|false
      */
     public function getFrontendData(DataInterface $data): array|false;
 

@@ -7,8 +7,6 @@ use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
 use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
-use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
-use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorContextInterface;

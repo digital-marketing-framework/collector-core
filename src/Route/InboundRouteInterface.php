@@ -3,7 +3,6 @@
 namespace DigitalMarketingFramework\Collector\Core\Route;
 
 use DigitalMarketingFramework\Collector\Core\Model\Result\InboundRouteResultInterface;
-use DigitalMarketingFramework\Core\Context\ContextInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
 use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;

@@ -10,7 +10,6 @@ use DigitalMarketingFramework\Core\Api\Response\ApiResponse;
 use DigitalMarketingFramework\Core\Api\Response\ApiResponseInterface;
 use DigitalMarketingFramework\Core\Api\Route\TemplateRoute;
 use DigitalMarketingFramework\Core\Api\Route\TemplateRouteInterface;
-use DigitalMarketingFramework\Core\Api\RouteResolver\EntryRouteResolverInterface;
 use DigitalMarketingFramework\Core\Utility\GeneralUtility;
 
 class CollectorRouteResolver implements CollectorRouteResolverInterface
@@ -46,12 +45,12 @@ class CollectorRouteResolver implements CollectorRouteResolverInterface
     public function resolveRequest(ApiRequestInterface $request): ApiResponseInterface
     {
         $module = GeneralUtility::dashedToCamelCase($request->getVariable(self::VARIABLE_MODULE));
+
         return match ($module) {
             static::SEGMENT_CONTENT_MODIFIER => $this->resolveContentModifierRequest($request),
             static::SEGMENT_USER_DATA => $this->resolveUserDataRequest($request),
             default => throw new ApiException(sprintf('Collector module "%s" unknown.', $module)),
         };
-
     }
 
     public function getContentModifierRoute(): TemplateRouteInterface
@@ -65,8 +64,8 @@ class CollectorRouteResolver implements CollectorRouteResolverInterface
                 GeneralUtility::slugify(static::SEGMENT_COLLECTOR),
                 '{' . static::VARIABLE_END_POINT . '}',
                 GeneralUtility::slugify(static::SEGMENT_CONTENT_MODIFIER),
-                '{' . static::VARIABLE_PLUGIN_TYPE .'}',
-                '{' . static::VARIABLE_PLUGIN_ID .'}',
+                '{' . static::VARIABLE_PLUGIN_TYPE . '}',
+                '{' . static::VARIABLE_PLUGIN_ID . '}',
             ]),
             variables: [
                 static::VARIABLE_END_POINT => '',
@@ -92,7 +91,7 @@ class CollectorRouteResolver implements CollectorRouteResolverInterface
                 GeneralUtility::slugify(static::SEGMENT_COLLECTOR),
                 '{' . static::VARIABLE_END_POINT . '}',
                 GeneralUtility::slugify(static::SEGMENT_USER_DATA),
-                '{' . static::VARIABLE_TRANSFORMATION_ID .'}',
+                '{' . static::VARIABLE_TRANSFORMATION_ID . '}',
             ]),
             variables: [
                 static::VARIABLE_END_POINT => '',

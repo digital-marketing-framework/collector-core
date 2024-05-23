@@ -2,16 +2,8 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Api\RouteResolver;
 
-use DigitalMarketingFramework\Collector\Core\Api\CollectorRequestHandlerInterface;
-use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
-use DigitalMarketingFramework\Core\Api\ApiException;
-use DigitalMarketingFramework\Core\Api\Request\ApiRequestInterface;
-use DigitalMarketingFramework\Core\Api\Response\ApiResponse;
-use DigitalMarketingFramework\Core\Api\Response\ApiResponseInterface;
-use DigitalMarketingFramework\Core\Api\Route\TemplateRoute;
 use DigitalMarketingFramework\Core\Api\Route\TemplateRouteInterface;
 use DigitalMarketingFramework\Core\Api\RouteResolver\RouteResolverInterface;
-use DigitalMarketingFramework\Core\Utility\GeneralUtility;
 
 interface CollectorRouteResolverInterface extends RouteResolverInterface
 {
