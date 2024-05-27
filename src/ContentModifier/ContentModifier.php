@@ -15,6 +15,7 @@ use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 
 abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, DataProcessorAwareInterface
 {
@@ -113,7 +114,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         return $schema;
     }
 
-    public function getBackendSettingsSchema(): SchemaInterface
+    public function getBackendSettingsSchema(SchemaDocument $schemaDocument): SchemaInterface
     {
         return new ContainerSchema();
     }

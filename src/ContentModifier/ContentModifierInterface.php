@@ -6,6 +6,7 @@ use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\Plugin\ConfigurablePluginInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 
 interface ContentModifierInterface extends ConfigurablePluginInterface
 {
@@ -24,7 +25,7 @@ interface ContentModifierInterface extends ConfigurablePluginInterface
      */
     public function getRequiredFieldGroups(): ?array;
 
-    public function getBackendSettingsSchema(): SchemaInterface;
+    public function getBackendSettingsSchema(SchemaDocument $schemaDocument): SchemaInterface;
 
     /**
      * @param array<string,mixed> $settings
