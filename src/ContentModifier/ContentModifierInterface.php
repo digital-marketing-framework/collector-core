@@ -33,4 +33,9 @@ interface ContentModifierInterface extends ConfigurablePluginInterface
      * @return array<string,mixed>
      */
     public function getBackendData(array $settings): array;
+
+    /**
+     * @param array<string,mixed> $settings
+     */
+    public function render(EndPointInterface $endPoint, array $settings): ?string;
 }

@@ -16,10 +16,15 @@ use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
+use DigitalMarketingFramework\Core\TemplateEngine\TemplateEngineAwareInterface;
+use DigitalMarketingFramework\Core\TemplateEngine\TemplateEngineAwareTrait;
+use DigitalMarketingFramework\Core\Utility\GeneralUtility;
+use DigitalMarketingFramework\TemplateEngineTwig\TemplateEngine\TwigTemplateEngine;
 
-abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, DataProcessorAwareInterface
+abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, DataProcessorAwareInterface, TemplateEngineAwareInterface
 {
     use DataProcessorAwareTrait;
+    use TemplateEngineAwareTrait;
 
     public const KEY_DATA_TRANSFORMATION_ID = 'dataTransformationId';
 
@@ -122,5 +127,44 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     public function getBackendData(array $settings): array
     {
         return [];
+    }
+
+    public function getTemplateNameCandidates(): array
+    {
+        $pluginType = GeneralUtility::camelCaseToDashed($this->getKeyword());
+        $pluginName = GeneralUtility::camelCaseToDashed($this->getContentModifierName());
+        return [
+            'content-modifiers/' . $pluginType . '-' . $pluginName . '.html.twig',
+            'content-modifiers/' . $pluginType . '.html.twig',
+        ];
+    }
+
+    public function getTemplateViewData(EndPointInterface $endPoint, array $settings): array
+    {
+        return [
+            'publicKey' => $this->getPublicKey($endPoint),
+            'pluginType' => ucfirst($this->getKeyword()),
+            'pluginName' => ucfirst($this->getContentModifierName()),
+            'data' => $this->getBackendData($settings),
+        ];
+    }
+
+    public function render(EndPointInterface $endPoint, array $settings): ?string
+    {
+        $viewData = $this->getTemplateViewData($endPoint, $settings);
+        $templateNameCandidates = $this->getTemplateNameCandidates();
+
+        $config = [
+            TwigTemplateEngine::KEY_TEMPLATE => '',
+            TwigTemplateEngine::KEY_TEMPLATE_NAME => $templateNameCandidates,
+        ];
+
+        $result = $this->templateEngine->render($config, $viewData);
+
+        if ($result !== '') {
+            return $result;
+        }
+
+        return null;
     }
 }

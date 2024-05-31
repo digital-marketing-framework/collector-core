@@ -29,7 +29,7 @@ class Registry extends CoreRegistry implements RegistryInterface
     use ContentModifierRegistryTrait;
     use ApiRegistryTrait;
 
-    protected function processObjectAwareness(object $object): void
+    public function processObjectAwareness(object $object): void
     {
         parent::processObjectAwareness($object);
         if ($object instanceof CollectorAwareInterface) {
