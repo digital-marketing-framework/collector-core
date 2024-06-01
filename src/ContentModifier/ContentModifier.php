@@ -133,6 +133,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     {
         $pluginType = GeneralUtility::camelCaseToDashed($this->getKeyword());
         $pluginName = GeneralUtility::camelCaseToDashed($this->getContentModifierName());
+
         return [
             'content-modifiers/' . $pluginType . '-' . $pluginName . '.html.twig',
             'content-modifiers/' . $pluginType . '.html.twig',

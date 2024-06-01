@@ -35,6 +35,18 @@ interface ContentModifierInterface extends ConfigurablePluginInterface
     public function getBackendData(array $settings): array;
 
     /**
+     * @return array<string>
+     */
+    public function getTemplateNameCandidates(): array;
+
+    /**
+     * @param array<string,mixed> $settings
+     *
+     * @return array<string,mixed>
+     */
+    public function getTemplateViewData(EndPointInterface $endPoint, array $settings): array;
+
+    /**
      * @param array<string,mixed> $settings
      */
     public function render(EndPointInterface $endPoint, array $settings): ?string;
