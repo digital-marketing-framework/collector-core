@@ -3,6 +3,7 @@
 namespace DigitalMarketingFramework\Collector\Core\Service;
 
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
+use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 
@@ -13,8 +14,7 @@ interface CollectorInterface
      */
     public function collect(
         CollectorConfigurationInterface $configuration,
-        array $fieldGroups = [],
-        ?WriteableContextInterface $preparedContext = null,
+        array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP],
         bool $invalidIdentifierHandling = false
     ): DataInterface;
 
@@ -23,7 +23,17 @@ interface CollectorInterface
      */
     public function prepareContext(
         CollectorConfigurationInterface $configuration,
-        array $fieldGroups = [],
-        ?WriteableContextInterface $context = null
-    ): WriteableContextInterface;
+        WriteableContextInterface $context,
+        array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP]
+    ): void;
+
+    /**
+     * @param array<string> $fieldGroups
+     */
+    public function prepareContextAndCollect(
+        CollectorConfigurationInterface $configuration,
+        WriteableContextInterface $context,
+        array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP],
+        bool $invalidIdentifierHandling = false,
+    ): DataInterface;
 }

@@ -3,6 +3,7 @@
 namespace DigitalMarketingFramework\Collector\Core;
 
 use DigitalMarketingFramework\Collector\Core\DataProcessor\ValueModifier\MaskedValueModifier;
+use DigitalMarketingFramework\Collector\Core\GlobalConfiguration\Schema\CollectorCoreGlobalConfigurationSchema;
 use DigitalMarketingFramework\Core\DataProcessor\ValueModifier\ValueModifierInterface;
 use DigitalMarketingFramework\Core\Initialization;
 use DigitalMarketingFramework\Core\Registry\RegistryDomain;
@@ -21,6 +22,6 @@ class CollectorCoreInitialization extends Initialization
 
     public function __construct(string $packageAlias = '')
     {
-        parent::__construct('collector-core', '1.0.0', $packageAlias);
+        parent::__construct('collector-core', '1.0.0', $packageAlias, new CollectorCoreGlobalConfigurationSchema());
     }
 }

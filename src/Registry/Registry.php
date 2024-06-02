@@ -7,6 +7,7 @@ use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfig
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\ContentModifierRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataTransformationRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\InboundRouteRegistryTrait;
+use DigitalMarketingFramework\Collector\Core\Registry\Service\ApiRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\CollectorRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\InvalidIdentifierHandlerRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
@@ -26,8 +27,9 @@ class Registry extends CoreRegistry implements RegistryInterface
     use CollectorRegistryTrait;
     use DataTransformationRegistryTrait;
     use ContentModifierRegistryTrait;
+    use ApiRegistryTrait;
 
-    protected function processObjectAwareness(object $object): void
+    public function processObjectAwareness(object $object): void
     {
         parent::processObjectAwareness($object);
         if ($object instanceof CollectorAwareInterface) {

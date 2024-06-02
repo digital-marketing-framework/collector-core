@@ -11,7 +11,6 @@ use DigitalMarketingFramework\Core\Cache\DataCacheAwareInterface;
 use DigitalMarketingFramework\Core\Cache\DataCacheAwareTrait;
 use DigitalMarketingFramework\Core\Context\ContextAwareInterface;
 use DigitalMarketingFramework\Core\Context\ContextAwareTrait;
-use DigitalMarketingFramework\Core\Context\WriteableContext;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
@@ -123,16 +122,25 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         return $result;
     }
 
+    public function prepareContextAndCollect(
+        CollectorConfigurationInterface $configuration,
+        WriteableContextInterface $context,
+        array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP],
+        bool $invalidIdentifierHandling = false,
+    ): DataInterface {
+        $this->prepareContext($configuration, $context, $fieldGroups);
+        $this->registry->pushContext($context);
+        $data = $this->collect($configuration, $fieldGroups, $invalidIdentifierHandling);
+        $this->registry->popContext();
+
+        return $data;
+    }
+
     public function collect(
         CollectorConfigurationInterface $configuration,
-        array $fieldGroups = [],
-        ?WriteableContextInterface $preparedContext = null,
+        array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP],
         bool $invalidIdentifierHandling = false
     ): DataInterface {
-        if (!$preparedContext instanceof WriteableContextInterface) {
-            $preparedContext = $this->prepareContext($configuration, $fieldGroups);
-        }
-
         $generalCacheTimeoutInSeconds = $configuration->getGeneralCacheTimeoutInSeconds();
         $this->cache->setTimeoutInSeconds($generalCacheTimeoutInSeconds);
 
@@ -145,7 +153,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
                 $inboundRoute = $pluginSet['inboundRoute'];
                 $cacheTimeoutInSeconds = $inboundRoute->getCacheTimeoutInSeconds() ?? $generalCacheTimeoutInSeconds;
 
-                $identifier = $identifierCollector->getIdentifier($preparedContext);
+                $identifier = $identifierCollector->getIdentifier();
                 if (!$identifier instanceof IdentifierInterface) {
                     continue;
                 }
@@ -184,19 +192,13 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
 
     public function prepareContext(
         CollectorConfigurationInterface $configuration,
-        array $fieldGroups = [],
-        ?WriteableContextInterface $context = null
-    ): WriteableContextInterface {
-        if (!$context instanceof WriteableContextInterface) {
-            $context = new WriteableContext();
-        }
-
+        WriteableContextInterface $context,
+        array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP]
+    ): void {
         $pluginSets = $this->getInboundPlugins($configuration, $fieldGroups);
         foreach ($pluginSets as $pluginSet) {
-            $pluginSet['identifierCollector']->addContext($this->context, $context);
-            $pluginSet['inboundRoute']->addContext($this->context, $context);
+            $pluginSet['identifierCollector']->addContext($context);
+            $pluginSet['inboundRoute']->addContext($context);
         }
-
-        return $context;
     }
 }

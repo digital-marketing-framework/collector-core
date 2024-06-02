@@ -64,6 +64,8 @@ trait InboundRouteRegistryTrait
             $schemaDocument->addValueToValueSet('inboundRoutes/' . $integrationInfo->getName() . '/all', $keyword);
 
             $integrationSchema = $this->getIntegrationSchemaForPlugin($schemaDocument, $integrationInfo);
+            $integrationInfo->addSchema($schemaDocument, $integrationSchema);
+
             $integrationInboundSchema = $integrationSchema->getProperty(CollectorConfigurationInterface::KEY_INBOUND_ROUTES)?->getSchema();
             if (!$integrationInboundSchema instanceof ContainerSchema) {
                 $integrationInboundSchema = new ContainerSchema();

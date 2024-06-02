@@ -5,21 +5,26 @@ namespace DigitalMarketingFramework\Collector\Core\ContentModifier;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
+use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
 use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
-use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
-use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorContextInterface;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
+use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
+use DigitalMarketingFramework\Core\TemplateEngine\TemplateEngineAwareInterface;
+use DigitalMarketingFramework\Core\TemplateEngine\TemplateEngineAwareTrait;
+use DigitalMarketingFramework\Core\Utility\GeneralUtility;
+use DigitalMarketingFramework\TemplateEngineTwig\TemplateEngine\TwigTemplateEngine;
 
-abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, CollectorAwareInterface, DataProcessorAwareInterface
+abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, DataProcessorAwareInterface, TemplateEngineAwareInterface
 {
-    use CollectorAwareTrait;
     use DataProcessorAwareTrait;
+    use TemplateEngineAwareTrait;
 
     public const KEY_DATA_TRANSFORMATION_ID = 'dataTransformationId';
 
@@ -46,9 +51,20 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         return $this->contentModifierName;
     }
 
-    protected function getDataProcessorContext(): DataProcessorContextInterface
+    public function getPublicKey(EndPointInterface $endPoint): string
     {
-        return $this->dataProcessor->createContext($this->getData(), $this->collectorConfiguration);
+        return implode(':', [
+            'collector',
+            'contentModifiers',
+            $this->getKeyword(),
+            $endPoint->getName(),
+            $this->getContentModifierName(),
+        ]);
+    }
+
+    protected function getDataProcessorContext(DataInterface $data): DataProcessorContextInterface
+    {
+        return $this->dataProcessor->createContext($data, $this->collectorConfiguration);
     }
 
     protected function dataTransformationMustBePublic(): bool
@@ -56,7 +72,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         return false;
     }
 
-    protected function transformData(DataInterface $data): DataInterface
+    public function transformData(DataInterface $data): DataInterface
     {
         $id = $this->getConfig(static::KEY_DATA_TRANSFORMATION_ID);
         $name = $id === '' ? null : $this->collectorConfiguration->getDataTransformationName($id);
@@ -81,19 +97,14 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         return $data;
     }
 
-    protected function invalidIdentifierHandling(): bool
+    public function invalidIdentifierHandling(): bool
     {
         return true;
     }
 
-    protected function getData(): DataInterface
+    public function getRequiredFieldGroups(): ?array
     {
-        if (!isset($this->data)) {
-            $this->data = $this->collector->collect($this->collectorConfiguration, invalidIdentifierHandling: $this->invalidIdentifierHandling());
-            $this->data = $this->transformData($this->data);
-        }
-
-        return $this->data;
+        return [InboundRouteInterface::STANDARD_FIELD_GROUP];
     }
 
     public static function getSchema(): SchemaInterface
@@ -106,5 +117,55 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         $schema->addProperty(static::KEY_DATA_TRANSFORMATION_ID, $transformationSchema);
 
         return $schema;
+    }
+
+    public function getBackendSettingsSchema(SchemaDocument $schemaDocument): SchemaInterface
+    {
+        return new ContainerSchema();
+    }
+
+    public function getBackendData(array $settings): array
+    {
+        return [];
+    }
+
+    public function getTemplateNameCandidates(): array
+    {
+        $pluginType = GeneralUtility::camelCaseToDashed($this->getKeyword());
+        $pluginName = GeneralUtility::camelCaseToDashed($this->getContentModifierName());
+
+        return [
+            'content-modifiers/' . $pluginType . '-' . $pluginName . '.html.twig',
+            'content-modifiers/' . $pluginType . '.html.twig',
+        ];
+    }
+
+    public function getTemplateViewData(EndPointInterface $endPoint, array $settings): array
+    {
+        return [
+            'publicKey' => $this->getPublicKey($endPoint),
+            'pluginType' => ucfirst($this->getKeyword()),
+            'pluginName' => ucfirst($this->getContentModifierName()),
+            'data' => $this->getBackendData($settings),
+        ];
+    }
+
+    public function render(EndPointInterface $endPoint, array $settings): ?string
+    {
+        $viewData = $this->getTemplateViewData($endPoint, $settings);
+        $templateNameCandidates = $this->getTemplateNameCandidates();
+
+        $config = [
+            TwigTemplateEngine::KEY_TEMPLATE => '',
+            TwigTemplateEngine::KEY_TEMPLATE_NAME => $templateNameCandidates,
+        ];
+
+        $result = $this->templateEngine->render($config, $viewData);
+
+        if ($result !== '') {
+            return $result;
+        }
+
+        return null;
     }
 }
