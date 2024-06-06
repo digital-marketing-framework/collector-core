@@ -12,6 +12,10 @@ interface InboundRouteInterface extends RouteInterface
 {
     public const STANDARD_FIELD_GROUP = 'default';
 
+    public function enabled(): bool;
+
+    public function allowed(): bool;
+
     /**
      * @return array<string>
      */

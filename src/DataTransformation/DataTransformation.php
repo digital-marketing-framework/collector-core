@@ -3,6 +3,8 @@
 namespace DigitalMarketingFramework\Collector\Core\DataTransformation;
 
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
+use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareInterface;
+use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
@@ -12,15 +14,19 @@ use DigitalMarketingFramework\Core\Plugin\ConfigurablePlugin;
 use DigitalMarketingFramework\Core\SchemaDocument\RenderingDefinition\RenderingDefinitionInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\DataMapperGroupReferenceSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\DataPrivacyPermissionSelectionSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\StringSchema;
 
-class DataTransformation extends ConfigurablePlugin implements DataTransformationInterface, DataProcessorAwareInterface
+class DataTransformation extends ConfigurablePlugin implements DataTransformationInterface, DataPrivacyManagerAwareInterface, DataProcessorAwareInterface
 {
+    use DataPrivacyManagerAwareTrait;
     use DataProcessorAwareTrait;
 
     public const KEY_VISIBILITY = 'visibility';
+
+    public const KEY_REQUIRED_PERMISSION = 'requiredPermission';
 
     public const KEY_DATA_MAP = 'dataMap';
 
@@ -44,6 +50,12 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
 
     public function allowed(): bool
     {
+        $permission = $this->getConfig(static::KEY_REQUIRED_PERMISSION);
+
+        if (!$this->dataPrivacyManager->getPermission($permission)) {
+            return false;
+        }
+
         $visibility = $this->getVisibility();
 
         return match ($visibility) {
@@ -72,12 +84,15 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
         $schema = new ContainerSchema();
         $schema->getRenderingDefinition()->setIcon('data-transformation');
 
-        $visibility = new StringSchema(static::DEFAULT_VISIBILITY);
-        $visibility->getAllowedValues()->addValue(static::VISIBILITY_DISABLED);
-        $visibility->getAllowedValues()->addValue(static::VISIBILITY_PRIVATE);
-        $visibility->getAllowedValues()->addValue(static::VISIBILITY_PUBLIC);
-        $visibility->getRenderingDefinition()->setFormat(RenderingDefinitionInterface::FORMAT_SELECT);
-        $schema->addProperty(static::KEY_VISIBILITY, $visibility);
+        $visibilitySchema = new StringSchema(static::DEFAULT_VISIBILITY);
+        $visibilitySchema->getAllowedValues()->addValue(static::VISIBILITY_DISABLED);
+        $visibilitySchema->getAllowedValues()->addValue(static::VISIBILITY_PRIVATE);
+        $visibilitySchema->getAllowedValues()->addValue(static::VISIBILITY_PUBLIC);
+        $visibilitySchema->getRenderingDefinition()->setFormat(RenderingDefinitionInterface::FORMAT_SELECT);
+        $schema->addProperty(static::KEY_VISIBILITY, $visibilitySchema);
+
+        $requiredPermissionSchema = new CustomSchema(DataPrivacyPermissionSelectionSchema::TYPE);
+        $schema->addProperty(static::KEY_REQUIRED_PERMISSION, $requiredPermissionSchema);
 
         $dataTransformationMapper = new CustomSchema(DataMapperGroupReferenceSchema::TYPE);
         $schema->addProperty(static::KEY_DATA_MAP, $dataTransformationMapper);
