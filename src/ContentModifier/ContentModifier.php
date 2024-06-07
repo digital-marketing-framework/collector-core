@@ -7,7 +7,6 @@ use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
 use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
-use DigitalMarketingFramework\Core\Api\ApiException;
 use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareInterface;
 use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
@@ -77,6 +76,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     public function allowed(): bool
     {
         $permission = $this->getConfig(static::KEY_REQUIRED_PERMISSION);
+
         return $this->dataPrivacyManager->getPermission($permission);
     }
 
@@ -94,6 +94,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     {
         if (!$this->allowed()) {
             $this->logger->warning(sprintf('Content modifier %s denied due to user permission and still requested', $this->getKeyword()));
+
             return new Data();
         }
 

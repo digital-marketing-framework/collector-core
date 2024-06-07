@@ -78,6 +78,7 @@ abstract class InboundRoute extends IntegrationPlugin implements InboundRouteInt
     public function allowed(): bool
     {
         $permission = $this->getConfig(static::KEY_REQUIRED_PERMISSION);
+
         return $this->dataPrivacyManager->getPermission($permission);
     }
 
