@@ -16,6 +16,8 @@ interface ContentModifierInterface extends ConfigurablePluginInterface
 
     public function getPublicKey(EndPointInterface $endPoint): string;
 
+    public function allowed(): bool;
+
     public function transformData(DataInterface $data): DataInterface;
 
     public function invalidIdentifierHandling(): bool;

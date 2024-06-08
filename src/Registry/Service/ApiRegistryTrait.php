@@ -55,7 +55,7 @@ trait ApiRegistryTrait
     {
         $contentModifierRoute = $this->getCollectorApiRouteResolver()->getContentModifierRoute();
         $contentModifiers = $this->getFrontendContentModifiers($configuration);
-        $entryRouteResolver = $this->getApiEntryRouteResolver();
+        $entryRouteResolver = $this->getRegistryCollection()->getApiEntryRouteResolver();
         $endPointName = $endPoint->getName();
 
         foreach ($contentModifiers as $contentModifier) {
@@ -85,7 +85,7 @@ trait ApiRegistryTrait
     {
         $transformationRoute = $this->getCollectorApiRouteResolver()->getUserDataRoute();
         $transformationNames = $this->getPublicDataTransformationNames($configuration);
-        $entryRouteResolver = $this->getApiEntryRouteResolver();
+        $entryRouteResolver = $this->getRegistryCollection()->getApiEntryRouteResolver();
         $endPointName = $endPoint->getName();
 
         foreach ($transformationNames as $transformationName) {

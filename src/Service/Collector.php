@@ -195,6 +195,8 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         WriteableContextInterface $context,
         array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP]
     ): void {
+        $this->registry->addServiceContext($context);
+
         $pluginSets = $this->getInboundPlugins($configuration, $fieldGroups);
         foreach ($pluginSets as $pluginSet) {
             $pluginSet['identifierCollector']->addContext($context);

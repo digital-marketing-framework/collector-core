@@ -7,6 +7,8 @@ use DigitalMarketingFramework\Collector\Core\Model\Result\InboundRouteResultInte
 use DigitalMarketingFramework\Collector\Core\Plugin\IntegrationPlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
+use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareInterface;
+use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\Exception\InvalidIdentifierException;
@@ -16,18 +18,22 @@ use DigitalMarketingFramework\Core\Model\Identifier\IdentifierInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\BooleanSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\DataMapperGroupReferenceSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\DataPrivacyPermissionSelectionSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\InheritableIntegerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\IntegerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 
-abstract class InboundRoute extends IntegrationPlugin implements InboundRouteInterface, DataProcessorAwareInterface
+abstract class InboundRoute extends IntegrationPlugin implements InboundRouteInterface, DataProcessorAwareInterface, DataPrivacyManagerAwareInterface
 {
     use DataProcessorAwareTrait;
+    use DataPrivacyManagerAwareTrait;
 
     protected const KEY_ENABLED = 'enabled';
 
     protected const DEFAULT_ENABLED = false;
+
+    protected const KEY_REQUIRED_PERMISSION = 'requiredPermission';
 
     protected const KEY_PRIORITY = 'priority';
 
@@ -64,9 +70,21 @@ abstract class InboundRoute extends IntegrationPlugin implements InboundRouteInt
         return [static::STANDARD_FIELD_GROUP];
     }
 
-    protected function proceed(): bool
+    public function enabled(): bool
     {
         return (bool)$this->getConfig(static::KEY_ENABLED);
+    }
+
+    public function allowed(): bool
+    {
+        $permission = $this->getConfig(static::KEY_REQUIRED_PERMISSION);
+
+        return $this->dataPrivacyManager->getPermission($permission);
+    }
+
+    protected function proceed(): bool
+    {
+        return $this->enabled() && $this->allowed();
     }
 
     protected function prepareContext(WriteableContextInterface $context): void
@@ -133,6 +151,8 @@ abstract class InboundRoute extends IntegrationPlugin implements InboundRouteInt
         }
 
         $schema->addProperty(static::KEY_ENABLED, new BooleanSchema(static::DEFAULT_ENABLED));
+
+        $schema->addProperty(static::KEY_REQUIRED_PERMISSION, new CustomSchema(DataPrivacyPermissionSelectionSchema::TYPE));
 
         $prioritySchema = new IntegerSchema(static::DEFAULT_PRIORITY);
         $prioritySchema->getRenderingDefinition()->setHint('Routes with a higher priority will take precedence and can add their fields first. Once a field is written, it will not be overwritten by other routes.');

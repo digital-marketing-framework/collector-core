@@ -7,13 +7,20 @@ use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
 use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
+use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareInterface;
+use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorContextInterface;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
+use DigitalMarketingFramework\Core\Log\LoggerAwareInterface;
+use DigitalMarketingFramework\Core\Log\LoggerAwareTrait;
 use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
+use DigitalMarketingFramework\Core\Model\Data\Data;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\DataPrivacyPermissionSelectionSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 use DigitalMarketingFramework\Core\TemplateEngine\TemplateEngineAwareInterface;
@@ -21,10 +28,14 @@ use DigitalMarketingFramework\Core\TemplateEngine\TemplateEngineAwareTrait;
 use DigitalMarketingFramework\Core\Utility\GeneralUtility;
 use DigitalMarketingFramework\TemplateEngineTwig\TemplateEngine\TwigTemplateEngine;
 
-abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, DataProcessorAwareInterface, TemplateEngineAwareInterface
+abstract class ContentModifier extends ConfigurablePlugin implements ContentModifierInterface, LoggerAwareInterface, DataProcessorAwareInterface, TemplateEngineAwareInterface, DataPrivacyManagerAwareInterface
 {
+    use LoggerAwareTrait;
     use DataProcessorAwareTrait;
     use TemplateEngineAwareTrait;
+    use DataPrivacyManagerAwareTrait;
+
+    protected const KEY_REQUIRED_PERMISSION = 'requiredPermission';
 
     public const KEY_DATA_TRANSFORMATION_ID = 'dataTransformationId';
 
@@ -62,6 +73,13 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         ]);
     }
 
+    public function allowed(): bool
+    {
+        $permission = $this->getConfig(static::KEY_REQUIRED_PERMISSION);
+
+        return $this->dataPrivacyManager->getPermission($permission);
+    }
+
     protected function getDataProcessorContext(DataInterface $data): DataProcessorContextInterface
     {
         return $this->dataProcessor->createContext($data, $this->collectorConfiguration);
@@ -74,6 +92,12 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
 
     public function transformData(DataInterface $data): DataInterface
     {
+        if (!$this->allowed()) {
+            $this->logger->warning(sprintf('Content modifier %s denied due to user permission and still requested', $this->getKeyword()));
+
+            return new Data();
+        }
+
         $id = $this->getConfig(static::KEY_DATA_TRANSFORMATION_ID);
         $name = $id === '' ? null : $this->collectorConfiguration->getDataTransformationName($id);
 
@@ -111,6 +135,9 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     {
         $schema = new ContainerSchema();
         $schema->getRenderingDefinition()->setIcon('content-modifier');
+
+        $requiredPermissionSchema = new CustomSchema(DataPrivacyPermissionSelectionSchema::TYPE);
+        $schema->addProperty(static::KEY_REQUIRED_PERMISSION, $requiredPermissionSchema);
 
         $transformationSchema = new DataTransformationReferenceSchema(required: false, firstEmptyOptionLabel: '[Passthrough]');
         $transformationSchema->getRenderingDefinition()->setLabel('Preprocessing Data Transformation');
