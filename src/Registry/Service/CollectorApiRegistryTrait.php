@@ -6,17 +6,22 @@ use DigitalMarketingFramework\Collector\Core\Api\CollectorRequestHandler;
 use DigitalMarketingFramework\Collector\Core\Api\CollectorRequestHandlerInterface;
 use DigitalMarketingFramework\Collector\Core\Api\RouteResolver\CollectorRouteResolver;
 use DigitalMarketingFramework\Collector\Core\Api\RouteResolver\CollectorRouteResolverInterface;
+use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierHandlerInterface;
+use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierInterface;
+use DigitalMarketingFramework\Collector\Core\ContentModifier\FrontendContentModifierInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Core\Api\RouteResolver\RouteResolverInterface;
 use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
 use DigitalMarketingFramework\Core\Utility\GeneralUtility;
 
-trait ApiRegistryTrait
+trait CollectorApiRegistryTrait
 {
     protected CollectorRequestHandlerInterface $collectorRequestHandler;
 
     protected CollectorRouteResolverInterface $collectorRouteResolver;
+
+    abstract public function getContentModifierHandler(): ContentModifierHandlerInterface;
 
     public function getCollectorApiRouteResolver(): CollectorRouteResolverInterface
     {
@@ -103,6 +108,11 @@ trait ApiRegistryTrait
         }
     }
 
+    protected function addContentSpecificSettings(array &$settings): void
+    {
+        $settings['content'] = $this->getContentModifierHandler()->getContentSpecificSettings();
+    }
+
     public function getFrontendSettings(): array
     {
         $settings = parent::getFrontendSettings();
@@ -117,6 +127,8 @@ trait ApiRegistryTrait
             $this->addContentModifierFrontendSettings($settings, $endPoint, $configuration);
             $this->addDataTransformationFrontendSettings($settings, $endPoint, $configuration);
         }
+
+        $this->addContentSpecificSettings($settings);
 
         return $settings;
     }

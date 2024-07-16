@@ -14,6 +14,11 @@ abstract class FrontendContentModifier extends ContentModifier implements Fronte
         return [];
     }
 
+    public function getContentSpecificFrontendSettings(string $id, array $settings): array
+    {
+        return $settings;
+    }
+
     public function activateFrontendScripts(): void
     {
     }
