@@ -7,6 +7,9 @@ use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 
 interface ContentModifierHandlerInterface
 {
+    /**
+     * @return array<string,array<string,array<string,mixed>>>
+     */
     public function getContentSpecificSettings(): array;
 
     public function getContentModifierBackendSettingsSchemaDocument(bool $asList, string $contentModifierInterface): SchemaDocument;
@@ -20,21 +23,27 @@ interface ContentModifierHandlerInterface
     public function setFormSpecificSettingsFromConfigurationDocument(string $configurationDocument, bool $asList, string $id): void;
 
     /**
-     * @param array{settings:array<string,mixed>} $settings
+     * @param array{settings?:array<string,mixed>} $settings
      *
-     * @return array{endPoint:EndPointInterface,contentModifier:ContentModifierInterface,settings:array<string,mixed>}
+     * @return array{endPoint:EndPointInterface,contentModifier:FrontendContentModifierInterface,settings:array<string,mixed>}
      */
     public function getContentModifierWithContentSpecificBackendSettings(array $settings): array;
 
     /**
-     * @param array{settings:array<string,array{uuid:string,weight:int,value:mixed}>} $settings
+     * @param array{}|array{settings:array<string,array{uuid:string,weight:int,value:mixed}>} $settings
      *
-     * @return array<array{endPoint:EndPointInterface,contentModifier:ContentModifierInterface,settings:array<string,mixed>}>
+     * @return array<array{endPoint:EndPointInterface,contentModifier:FrontendContentModifierInterface,settings:array<string,mixed>}>
      */
     public function getContentModifierListWithContentSpecificBackendSettings(array $settings): array;
 
+    /**
+     * @return array<string,mixed>
+     */
     public function getContentSpecificFrontendSettingsFromConfigurationDocument(string $configurationDocument, bool $asList, string $id): array;
 
+    /**
+     * @return array<string,mixed>
+     */
     public function getDataAttributesFromConfigurationDocument(string $configurationDocument, bool $asList, string $id): array;
 
     public function renderFromConfigurationDocument(string $configurationDocument, bool $asList): string;

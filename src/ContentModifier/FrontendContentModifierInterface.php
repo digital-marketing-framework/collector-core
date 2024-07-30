@@ -18,6 +18,7 @@ interface FrontendContentModifierInterface extends ContentModifierInterface
 
     /**
      * @param array<string,mixed> $settings
+     *
      * @return array<string,mixed>
      */
     public function getContentSpecificFrontendSettings(string $id, array $settings): array;

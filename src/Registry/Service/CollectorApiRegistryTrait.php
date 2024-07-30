@@ -7,8 +7,6 @@ use DigitalMarketingFramework\Collector\Core\Api\CollectorRequestHandlerInterfac
 use DigitalMarketingFramework\Collector\Core\Api\RouteResolver\CollectorRouteResolver;
 use DigitalMarketingFramework\Collector\Core\Api\RouteResolver\CollectorRouteResolverInterface;
 use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierHandlerInterface;
-use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierInterface;
-use DigitalMarketingFramework\Collector\Core\ContentModifier\FrontendContentModifierInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Core\Api\RouteResolver\RouteResolverInterface;
@@ -108,6 +106,9 @@ trait CollectorApiRegistryTrait
         }
     }
 
+    /**
+     * @param array{settings:array<string,mixed>,urls:array<string,string>,pluginSettings:array<string,array<string,mixed>>} $settings
+     */
     protected function addContentSpecificSettings(array &$settings): void
     {
         $settings['content'] = $this->getContentModifierHandler()->getContentSpecificSettings();

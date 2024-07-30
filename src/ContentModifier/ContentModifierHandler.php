@@ -22,6 +22,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
     use EndPointStorageAwareTrait;
     use ConfigurationDocumentManagerAwareTrait;
 
+    /** @var array<string,array<string,array<string,mixed>>> */
     protected array $contentSpecificSettings = [];
 
     public function __construct(
@@ -68,7 +69,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
             $contentModifiers = $this->registry->getFrontendContentModifiers($configuration);
 
             foreach ($contentModifiers as $contentModifier) {
-                if (!is_a($contentModifier, $contentModifierInterface)) {
+                if (!$contentModifier instanceof $contentModifierInterface) {
                     continue;
                 }
 
@@ -128,7 +129,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
     /**
      * @param array<array<string,mixed>> $settings
      *
-     * @return array<array{endPoint:EndPointInterface,contentModifier:ContentModifierInterface,settings:array<string,mixed>}>
+     * @return array<array{endPoint:EndPointInterface,contentModifier:FrontendContentModifierInterface,settings:array<string,mixed>}>
      */
     protected function produceContentModifierListWithContentSpecificBackendSettings(array $settings): array
     {
@@ -178,23 +179,28 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
     {
         $settingsList = [$settings['settings'] ?? []];
         $result = $this->produceContentModifierListWithContentSpecificBackendSettings($settingsList);
+
         return reset($result);
     }
 
     public function getContentModifierListWithContentSpecificBackendSettings(array $settings): array
     {
         $settingsList = ListUtility::flatten($settings['settings'] ?? []);
+
         return $this->produceContentModifierListWithContentSpecificBackendSettings($settingsList);
     }
 
+    /**
+     * @return array<array{endPoint:EndPointInterface,contentModifier:FrontendContentModifierInterface,settings:array<string,mixed>}>
+     */
     protected function getContentModifierSetupFromConfigurationDocument(string $configurationDocument, bool $asList): array
     {
         $settings = $this->configurationDocumentManager->getParser()->parseDocument($configurationDocument);
         if ($asList) {
             return $this->getContentModifierListWithContentSpecificBackendSettings($settings);
-        } else {
-            return [$this->getContentModifierWithContentSpecificBackendSettings($settings)];
         }
+
+        return [$this->getContentModifierWithContentSpecificBackendSettings($settings)];
     }
 
     public function getContentSpecificFrontendSettingsFromConfigurationDocument(string $configurationDocument, bool $asList, string $id): array
@@ -210,7 +216,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
             foreach ($contentSettings as $key => $value) {
                 if (is_scalar($value)) {
                     if (isset($settings[$key])) {
-                        $valueList = explode(',', $settings[$key]);
+                        $valueList = explode(',', (string)$settings[$key]);
                         if (!in_array($value, $valueList)) {
                             $valueList[] = $value;
                             $settings[$key] = implode(',', $valueList);
@@ -222,6 +228,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
                     if (isset($settings[$key])) {
                         throw new DigitalMarketingFrameworkException('Settings with the same key must be scalar (' . $key . ')');
                     }
+
                     $settings[$key] = $value;
                 }
             }
@@ -240,6 +247,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
             if (!is_scalar($value)) {
                 $value = json_encode($value, flags: JSON_THROW_ON_ERROR);
             }
+
             $attributes[sprintf('data-%s-%s', $prefix, GeneralUtility::camelCaseToDashed($key))] = $value;
         }
 
