@@ -102,12 +102,10 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
         $contentModifierListSetup = $this->getContentModifierSetupFromConfigurationDocument($configurationDocument, $asList);
         foreach ($contentModifierListSetup as $contentModifierSetup) {
             $contentModifier = $contentModifierSetup['contentModifier'];
-            if ($contentModifier instanceof FrontendContentModifierInterface) {
-                $endPoint = $contentModifierSetup['endPoint'];
-                $publicKey = $contentModifier->getPublicKey($endPoint);
-                $this->contentSpecificSettings[$publicKey][$id] = $contentModifier->getContentSpecificFrontendSettings($id, $contentModifierSetup['settings']);
-                $contentModifier->activateFrontendScripts();
-            }
+            $endPoint = $contentModifierSetup['endPoint'];
+            $publicKey = $contentModifier->getPublicKey($endPoint);
+            $this->contentSpecificSettings[$publicKey][$id] = $contentModifier->getContentSpecificFrontendSettings($id, $contentModifierSetup['settings']);
+            $contentModifier->activateFrontendScripts();
         }
     }
 
