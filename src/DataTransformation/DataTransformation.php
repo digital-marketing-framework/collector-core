@@ -3,6 +3,7 @@
 namespace DigitalMarketingFramework\Collector\Core\DataTransformation;
 
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
+use DigitalMarketingFramework\Collector\Core\SchemaDocument\RenderingDefinition\Icon;
 use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareInterface;
 use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareTrait;
 use DigitalMarketingFramework\Core\DataProcessor\DataProcessorAwareInterface;
@@ -82,7 +83,7 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
     public static function getSchema(): SchemaInterface
     {
         $schema = new ContainerSchema();
-        $schema->getRenderingDefinition()->setIcon('data-transformation');
+        $schema->getRenderingDefinition()->setIcon(Icon::DATA_TRANSFORMATION);
 
         $visibilitySchema = new StringSchema(static::DEFAULT_VISIBILITY);
         $visibilitySchema->getAllowedValues()->addValue(static::VISIBILITY_DISABLED);

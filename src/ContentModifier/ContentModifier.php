@@ -6,6 +6,7 @@ use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfig
 use DigitalMarketingFramework\Collector\Core\Plugin\ConfigurablePlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
 use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
+use DigitalMarketingFramework\Collector\Core\SchemaDocument\RenderingDefinition\Icon;
 use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
 use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareInterface;
 use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareTrait;
@@ -134,7 +135,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
     public static function getSchema(): SchemaInterface
     {
         $schema = new ContainerSchema();
-        $schema->getRenderingDefinition()->setIcon('content-modifier');
+        $schema->getRenderingDefinition()->setIcon(Icon::CONTENT_MODIFIER);
 
         $requiredPermissionSchema = new CustomSchema(DataPrivacyPermissionSelectionSchema::TYPE);
         $schema->addProperty(static::KEY_REQUIRED_PERMISSION, $requiredPermissionSchema);

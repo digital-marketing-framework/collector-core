@@ -5,6 +5,7 @@ namespace DigitalMarketingFramework\Collector\Core\Registry\Plugin;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Route\InboundRouteInterface;
+use DigitalMarketingFramework\Collector\Core\SchemaDocument\RenderingDefinition\Icon;
 use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\PluginRegistryTrait;
 use DigitalMarketingFramework\Core\SchemaDocument\FieldDefinition\FieldDefinition;
@@ -70,7 +71,7 @@ trait InboundRouteRegistryTrait
             if (!$integrationInboundSchema instanceof ContainerSchema) {
                 $integrationInboundSchema = new ContainerSchema();
                 $integrationInboundSchema->getRenderingDefinition()->setLabel($integrationInfo->getInboundRouteListLabel());
-                $integrationInboundSchema->getRenderingDefinition()->setIcon('inbound-routes');
+                $integrationInboundSchema->getRenderingDefinition()->setIcon(Icon::INBOUND_ROUTES);
                 $integrationSchema->addProperty(CollectorConfigurationInterface::KEY_INBOUND_ROUTES, $integrationInboundSchema);
             }
 

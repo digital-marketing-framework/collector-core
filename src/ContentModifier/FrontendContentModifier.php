@@ -2,6 +2,7 @@
 
 namespace DigitalMarketingFramework\Collector\Core\ContentModifier;
 
+use DigitalMarketingFramework\Collector\Core\SchemaDocument\RenderingDefinition\Icon;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 
@@ -26,7 +27,7 @@ abstract class FrontendContentModifier extends ContentModifier implements Fronte
     public static function getSchema(): SchemaInterface
     {
         $schema = parent::getSchema();
-        $schema->getRenderingDefinition()->setIcon('frontend-content-modifier');
+        $schema->getRenderingDefinition()->setIcon(Icon::FRONTEND_CONTENT_MODIFIER);
 
         return $schema;
     }

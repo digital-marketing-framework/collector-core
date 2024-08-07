@@ -5,6 +5,7 @@ namespace DigitalMarketingFramework\Collector\Core\Registry\Plugin;
 use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierInterface;
 use DigitalMarketingFramework\Collector\Core\ContentModifier\FrontendContentModifierInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
+use DigitalMarketingFramework\Collector\Core\SchemaDocument\RenderingDefinition\Icon;
 use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Plugin\ContentModifier\ContentModifierSchema;
 use DigitalMarketingFramework\Core\Model\Configuration\ConfigurationInterface;
 use DigitalMarketingFramework\Core\Registry\Plugin\PluginRegistryTrait;
@@ -95,7 +96,7 @@ trait ContentModifierRegistryTrait
         $mapValueSchema = new CustomSchema(ContentModifierSchema::TYPE);
         $mapValueSchema->getRenderingDefinition()->setLabel('{type} {../key}');
         $contentModifierMapSchema = new MapSchema($mapValueSchema, $mapKeySchema);
-        $contentModifierMapSchema->getRenderingDefinition()->setIcon('content-modifiers');
+        $contentModifierMapSchema->getRenderingDefinition()->setIcon(Icon::CONTENT_MODIFIERS);
         $contentModifierMapSchema->setDynamicOrder(true);
 
         return $contentModifierMapSchema;

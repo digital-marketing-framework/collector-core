@@ -6,6 +6,7 @@ use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfig
 use DigitalMarketingFramework\Collector\Core\Model\Result\InboundRouteResultInterface;
 use DigitalMarketingFramework\Collector\Core\Plugin\IntegrationPlugin;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
+use DigitalMarketingFramework\Collector\Core\SchemaDocument\RenderingDefinition\Icon;
 use DigitalMarketingFramework\Core\Context\WriteableContextInterface;
 use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareInterface;
 use DigitalMarketingFramework\Core\DataPrivacy\DataPrivacyManagerAwareTrait;
@@ -143,7 +144,7 @@ abstract class InboundRoute extends IntegrationPlugin implements InboundRouteInt
     public static function getSchema(): SchemaInterface
     {
         $schema = new ContainerSchema();
-        $schema->getRenderingDefinition()->setIcon('inbound-route');
+        $schema->getRenderingDefinition()->setIcon(Icon::INBOUND_ROUTE);
 
         $label = static::getLabel();
         if ($label !== null) {

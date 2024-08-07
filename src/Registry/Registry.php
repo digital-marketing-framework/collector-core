@@ -12,6 +12,7 @@ use DigitalMarketingFramework\Collector\Core\Registry\Service\CollectorApiRegist
 use DigitalMarketingFramework\Collector\Core\Registry\Service\CollectorRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\ContentModifierHandlerRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\InvalidIdentifierHandlerRegistryTrait;
+use DigitalMarketingFramework\Collector\Core\SchemaDocument\RenderingDefinition\Icon;
 use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
 use DigitalMarketingFramework\Core\Registry\Registry as CoreRegistry;
@@ -51,7 +52,7 @@ class Registry extends CoreRegistry implements RegistryInterface
         $transformation = DataTransformation::getSchema();
 
         $transformationsSchema = new MapSchema($transformation, $transformationName);
-        $transformationsSchema->getRenderingDefinition()->setIcon('data-transformations');
+        $transformationsSchema->getRenderingDefinition()->setIcon(Icon::DATA_TRANSFORMATIONS);
 
         return $transformationsSchema;
     }
@@ -61,7 +62,7 @@ class Registry extends CoreRegistry implements RegistryInterface
         parent::addConfigurationSchemaDocument($schemaDocument);
 
         $generalInboundConfiguration = new ContainerSchema();
-        $generalInboundConfiguration->getRenderingDefinition()->setIcon('inbound-routes');
+        $generalInboundConfiguration->getRenderingDefinition()->setIcon(Icon::INBOUND_ROUTES);
         $cacheTimeoutSchema = new IntegerSchema(CollectorConfigurationInterface::DEFAULT_CACHE_TIMEOUT);
         $cacheTimeoutSchema->getRenderingDefinition()->setLabel('Cache lifetime (seconds)');
         $generalInboundConfiguration->addProperty(CollectorConfigurationInterface::KEY_CACHE_TIMEOUT, $cacheTimeoutSchema);
@@ -71,7 +72,7 @@ class Registry extends CoreRegistry implements RegistryInterface
         $this->addInboundRoutesSchemas($schemaDocument);
 
         $personalizationSchema = new ContainerSchema();
-        $personalizationSchema->getRenderingDefinition()->setIcon('personalization');
+        $personalizationSchema->getRenderingDefinition()->setIcon(Icon::PERSONALIZATION);
 
         $personalizationSchema->addProperty(
             CollectorConfigurationInterface::KEY_DEFAULT_DATA_TRANSFORMATION,
