@@ -27,9 +27,14 @@ interface ContentModifierInterface extends ConfigurablePluginInterface
      */
     public function getRequiredFieldGroups(): ?array;
 
+    /**
+     * Schema for content specific backend settings
+     */
     public function getBackendSettingsSchema(SchemaDocument $schemaDocument): SchemaInterface;
 
     /**
+     * Backend data to produce or update markup, derived from content specific backend settings
+     *
      * @param array<string,mixed> $settings
      *
      * @return array<string,mixed>
@@ -42,6 +47,8 @@ interface ContentModifierInterface extends ConfigurablePluginInterface
     public function getTemplateNameCandidates(): array;
 
     /**
+     * Template variables to produce or update markup, derived from content specific backend settings
+     *
      * @param array<string,mixed> $settings
      *
      * @return array<string,mixed>
@@ -49,6 +56,8 @@ interface ContentModifierInterface extends ConfigurablePluginInterface
     public function getTemplateViewData(EndPointInterface $endPoint, array $settings): array;
 
     /**
+     * Produce markup, derived from content specific backend settings
+     *
      * @param array<string,mixed> $settings
      */
     public function render(EndPointInterface $endPoint, array $settings): ?string;
