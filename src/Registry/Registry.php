@@ -2,13 +2,15 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Registry;
 
+use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierHandlerAwareInterface;
 use DigitalMarketingFramework\Collector\Core\DataTransformation\DataTransformation;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\ContentModifierRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\DataTransformationRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Plugin\InboundRouteRegistryTrait;
-use DigitalMarketingFramework\Collector\Core\Registry\Service\ApiRegistryTrait;
+use DigitalMarketingFramework\Collector\Core\Registry\Service\CollectorApiRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\CollectorRegistryTrait;
+use DigitalMarketingFramework\Collector\Core\Registry\Service\ContentModifierHandlerRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\Registry\Service\InvalidIdentifierHandlerRegistryTrait;
 use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTransformationReferenceSchema;
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
@@ -27,13 +29,19 @@ class Registry extends CoreRegistry implements RegistryInterface
     use CollectorRegistryTrait;
     use DataTransformationRegistryTrait;
     use ContentModifierRegistryTrait;
-    use ApiRegistryTrait;
+    use CollectorApiRegistryTrait;
+    use ContentModifierHandlerRegistryTrait;
 
     public function processObjectAwareness(object $object): void
     {
         parent::processObjectAwareness($object);
+
         if ($object instanceof CollectorAwareInterface) {
             $object->setCollector($this->getCollector());
+        }
+
+        if ($object instanceof ContentModifierHandlerAwareInterface) {
+            $object->setContentModifierHandler($this->getContentModifierHandler());
         }
     }
 

@@ -173,6 +173,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
             'publicKey' => $this->getPublicKey($endPoint),
             'pluginType' => ucfirst($this->getKeyword()),
             'pluginName' => ucfirst($this->getContentModifierName()),
+            'settings' => $settings,
             'data' => $this->getBackendData($settings),
         ];
     }

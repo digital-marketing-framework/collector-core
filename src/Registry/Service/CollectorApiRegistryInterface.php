@@ -6,7 +6,7 @@ use DigitalMarketingFramework\Collector\Core\Api\CollectorRequestHandlerInterfac
 use DigitalMarketingFramework\Collector\Core\Api\RouteResolver\CollectorRouteResolverInterface;
 use DigitalMarketingFramework\Core\Api\RouteResolver\RouteResolverInterface;
 
-interface ApiRegistryInterface
+interface CollectorApiRegistryInterface
 {
     public function getCollectorApiRouteResolver(): CollectorRouteResolverInterface;
 

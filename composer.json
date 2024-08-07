@@ -21,7 +21,7 @@
     "homepage": "https://www.mediatis.de",
     "require": {
         "php": "^8.1",
-        "digital-marketing-framework/core": "^2.2",
+        "digital-marketing-framework/core": "^2.2.11",
         "digital-marketing-framework/template-engine-twig": "^2.1"
     },
     "require-dev": {
@@ -83,14 +83,22 @@
             "@ci:php:tests:unit",
             "@ci:php:tests:integration"
         ],
-        "ci:php:tests:integration": "./vendor/bin/phpunit --bootstrap vendor/autoload.php --testdox --colors=always tests/Integration/",
-        "ci:php:tests:unit": "./vendor/bin/phpunit --bootstrap vendor/autoload.php --testdox --colors=always tests/Unit/",
+        "ci:php:tests:integration": "./vendor/bin/phpunit -d memory_limit=228M --bootstrap vendor/autoload.php --testdox --colors=always tests/Integration/",
+        "ci:php:tests:unit": "./vendor/bin/phpunit -d memory_limit=228M --bootstrap vendor/autoload.php --testdox --colors=always tests/Unit/",
         "ci:static": [
             "@ci:composer:static",
             "@ci:php:static"
         ],
         "ci:tests": [
             "@ci:php:tests"
+        ],
+        "coding-standards:reset": [
+            "./vendor/bin/mediatis-coding-standards-setup reset",
+            "@fix:composer"
+        ],
+        "coding-standards:update": [
+            "./vendor/bin/mediatis-coding-standards-setup",
+            "@fix:composer"
         ],
         "fix": [
             "@fix:composer",
