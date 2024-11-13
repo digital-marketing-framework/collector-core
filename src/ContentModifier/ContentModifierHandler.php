@@ -18,7 +18,6 @@ use DigitalMarketingFramework\Core\SchemaDocument\Schema\Plugin\DataProcessor\Co
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Plugin\DataProcessor\ConditionSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Plugin\DataProcessor\ValueModifierSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Plugin\DataProcessor\ValueSourceSchema;
-use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SwitchSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 use DigitalMarketingFramework\Core\Utility\GeneralUtility;
@@ -291,6 +290,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
                 if ($id !== null) {
                     $settings['contentId'] = $id;
                 }
+
                 $contentModifier->activateFrontendScripts();
                 $result .= $contentModifier->render($endPoint, $settings);
             }
