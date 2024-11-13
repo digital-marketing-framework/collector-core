@@ -111,7 +111,8 @@ trait CollectorApiRegistryTrait
      */
     protected function addContentSpecificSettings(array &$settings): void
     {
-        $settings['content'] = $this->getContentModifierHandler()->getContentSpecificSettings();
+        $contentSettings = $this->getContentModifierHandler()->getContentSpecificSettings();
+        $settings['content'] = $contentSettings === [] ? (object)$contentSettings : $contentSettings;
     }
 
     public function getFrontendSettings(): array

@@ -30,7 +30,7 @@ class CollectorRouteResolver implements CollectorRouteResolverInterface
 
         $data = $this->collectorRequestHandler->processContentModifier($endPoint, $plugin, $name);
 
-        return new ApiResponse($data);
+        return new ApiResponse($data === false ? null : $data);
     }
 
     protected function resolveUserDataRequest(ApiRequestInterface $request): ApiResponseInterface

@@ -34,7 +34,7 @@ class DataTransformation extends ConfigurablePlugin implements DataTransformatio
     public function __construct(
         string $keyword,
         protected CollectorConfigurationInterface $collectorConfiguration,
-        protected bool $public = false
+        protected bool $public = false,
     ) {
         parent::__construct($keyword);
         if (!$collectorConfiguration->dataTransformationExists($keyword)) {

@@ -8,7 +8,7 @@ use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 interface ContentModifierHandlerInterface
 {
     /**
-     * @return array<string,array<string,array<string,mixed>>>
+     * @return array<string,array<string,array<array<string,mixed>>>>
      */
     public function getContentSpecificSettings(): array;
 
@@ -46,5 +46,5 @@ interface ContentModifierHandlerInterface
      */
     public function getDataAttributesFromConfigurationDocument(string $configurationDocument, bool $asList, string $id): array;
 
-    public function renderFromConfigurationDocument(string $configurationDocument, bool $asList): string;
+    public function renderFromConfigurationDocument(string $configurationDocument, bool $asList, ?string $id = null): string;
 }

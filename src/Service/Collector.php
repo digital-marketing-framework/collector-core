@@ -139,7 +139,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
     public function collect(
         CollectorConfigurationInterface $configuration,
         array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP],
-        bool $invalidIdentifierHandling = false
+        bool $invalidIdentifierHandling = false,
     ): DataInterface {
         $generalCacheTimeoutInSeconds = $configuration->getGeneralCacheTimeoutInSeconds();
         $this->cache->setTimeoutInSeconds($generalCacheTimeoutInSeconds);
@@ -193,7 +193,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
     public function prepareContext(
         CollectorConfigurationInterface $configuration,
         WriteableContextInterface $context,
-        array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP]
+        array $fieldGroups = [InboundRouteInterface::STANDARD_FIELD_GROUP],
     ): void {
         $this->registry->addServiceContext($context);
 

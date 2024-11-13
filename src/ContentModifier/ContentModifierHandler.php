@@ -11,7 +11,13 @@ use DigitalMarketingFramework\Core\ConfigurationDocument\ConfigurationDocumentMa
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
 use DigitalMarketingFramework\Core\Model\Configuration\Configuration;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\ConditionReferenceSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\ValueSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ListSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Plugin\DataProcessor\ComparisonSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Plugin\DataProcessor\ConditionSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Plugin\DataProcessor\ValueModifierSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Plugin\DataProcessor\ValueSourceSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SwitchSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
 use DigitalMarketingFramework\Core\Utility\GeneralUtility;
@@ -22,7 +28,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
     use EndPointStorageAwareTrait;
     use ConfigurationDocumentManagerAwareTrait;
 
-    /** @var array<string,array<string,array<string,mixed>>> */
+    /** @var array<string,array<string,array<array<string,mixed>>>> */
     protected array $contentSpecificSettings = [];
 
     public function __construct(
@@ -35,10 +41,8 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
         return $this->contentSpecificSettings;
     }
 
-    public function getContentModifierBackendSettingsSchemaDocument(bool $asList, string $contentModifierInterface): SchemaDocument
+    protected function getEndPointContainerSchema(SchemaDocument $schemaDocument, string $contentModifierInterface): SwitchSchema
     {
-        $schemaDocument = new SchemaDocument();
-
         $endPointContainerSchema = new SwitchSchema('endPoint');
         // TODO label processing currently does not support nested path patterns
         // $endPointContainerSchema->getRenderingDefinition()->setLabel('End point: {type}, modifier: {config/{type}/type}');
@@ -84,6 +88,27 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
             $endPointContainerSchema->addItem($endPoint->getName(), $endPointSchema);
         }
 
+        return $endPointContainerSchema;
+    }
+
+    public function getContentModifierBackendSettingsSchemaDocument(bool $asList, string $contentModifierInterface): SchemaDocument
+    {
+        $schemaDocument = new SchemaDocument();
+
+        // complex values
+        $schemaDocument->addCustomType(new ValueSchema(), ValueSchema::TYPE);
+        $schemaDocument->addCustomType($this->registry->getValueSourceSchema(), ValueSourceSchema::TYPE);
+        $schemaDocument->addCustomType($this->registry->getValueModifierSchema(), ValueModifierSchema::TYPE);
+
+        // complex conditions
+        $schemaDocument->addCustomType($this->registry->getConditionSchema(), ConditionSchema::TYPE);
+        $schemaDocument->addCustomType($this->registry->getConditionSchema(withContext: true), ConditionSchema::TYPE_WITH_CONTEXT);
+        $schemaDocument->addCustomType(new ConditionReferenceSchema(), ConditionReferenceSchema::TYPE);
+        $schemaDocument->addCustomType($this->registry->getComparisonSchema(), ComparisonSchema::TYPE);
+
+        // end point/content modification settings
+        $endPointContainerSchema = $this->getEndPointContainerSchema($schemaDocument, $contentModifierInterface);
+
         if ($asList) {
             $configSchema = new ListSchema($endPointContainerSchema);
             $configSchema->getRenderingDefinition()->setLabel('Content Modifiers');
@@ -104,7 +129,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
             $contentModifier = $contentModifierSetup['contentModifier'];
             $endPoint = $contentModifierSetup['endPoint'];
             $publicKey = $contentModifier->getPublicKey($endPoint);
-            $this->contentSpecificSettings[$publicKey][$id] = $contentModifier->getContentSpecificFrontendSettings($id, $contentModifierSetup['settings']);
+            $this->contentSpecificSettings[$publicKey][$id][] = $contentModifier->getContentSpecificFrontendSettings($id, $contentModifierSetup['settings']);
             $contentModifier->activateFrontendScripts();
         }
     }
@@ -252,7 +277,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
         return $attributes;
     }
 
-    public function renderFromConfigurationDocument(string $configurationDocument, bool $asList): string
+    public function renderFromConfigurationDocument(string $configurationDocument, bool $asList, ?string $id = null): string
     {
         $result = '';
 
@@ -262,6 +287,10 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
                 $contentModifier = $setup['contentModifier'];
                 $endPoint = $setup['endPoint'];
                 $settings = $setup['settings'];
+                if ($id !== null) {
+                    $settings['contentId'] = $id;
+                }
+
                 $contentModifier->activateFrontendScripts();
                 $result .= $contentModifier->render($endPoint, $settings);
             }

@@ -8,7 +8,7 @@ use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 
 abstract class FrontendContentModifier extends ContentModifier implements FrontendContentModifierInterface
 {
-    abstract public function getFrontendData(DataInterface $data): array|false;
+    abstract public function getFrontendData(DataInterface $data, array $arguments): array|false;
 
     public function getFrontendSettings(): array
     {

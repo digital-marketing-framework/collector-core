@@ -9,9 +9,11 @@ interface FrontendContentModifierInterface extends ContentModifierInterface
     /**
      * Personalized user data transformed for frontend usage
      *
+     * @param array<string,mixed> $arguments
+     *
      * @return array<string,mixed>|false
      */
-    public function getFrontendData(DataInterface $data): array|false;
+    public function getFrontendData(DataInterface $data, array $arguments): array|false;
 
     /**
      * General frontend settings for the content modifier

@@ -120,8 +120,9 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface, Logge
 
         try {
             $data = $this->collectData($configuration, $contentModifier->getRequiredFieldGroups());
+            $arguments = $this->registry->getContext()->getRequestArguments();
 
-            return $contentModifier->getFrontendData($data);
+            return $contentModifier->getFrontendData($data, $arguments);
         } catch (DigitalMarketingFrameworkException $e) {
             throw new ApiException($e->getMessage(), 500, $e);
         }
