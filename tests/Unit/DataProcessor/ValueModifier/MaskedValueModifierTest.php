@@ -3,9 +3,9 @@
 namespace DigitalMarketingFramework\Collector\Core\Tests\Unit\DataProcessor\ValueModifier;
 
 use DigitalMarketingFramework\Collector\Core\DataProcessor\ValueModifier\MaskedValueModifier;
-use DigitalMarketingFramework\Core\Tests\Unit\DataProcessor\ValueModifier\ValueModifierTest;
+use DigitalMarketingFramework\Core\Tests\Unit\DataProcessor\ValueModifier\ValueModifierTestBase;
 
-class MaskedValueModifierTest extends ValueModifierTest
+class MaskedValueModifierTest extends ValueModifierTestBase
 {
     protected const KEYWORD = 'masked';
 
@@ -27,7 +27,10 @@ class MaskedValueModifierTest extends ValueModifierTest
         ],
     ];
 
-    public function modifyProvider(): array
+    /**
+     * @return array<array{string|array<string>|null,string|array<string>|null}>
+     */
+    public static function modifyProvider(): array
     {
         return static::MODIFY_TEST_CASES;
     }

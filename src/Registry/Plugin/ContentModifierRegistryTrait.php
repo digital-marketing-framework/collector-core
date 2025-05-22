@@ -69,9 +69,7 @@ trait ContentModifierRegistryTrait
     {
         $contentModifiers = $this->getContentModifiers($configuration);
 
-        return array_filter($contentModifiers, static function (ContentModifierInterface $contentModifier) {
-            return $contentModifier instanceof FrontendContentModifierInterface;
-        });
+        return array_filter($contentModifiers, static fn (ContentModifierInterface $contentModifier) => $contentModifier instanceof FrontendContentModifierInterface);
     }
 
     public function getContentModifierSchema(): SchemaInterface
