@@ -2,13 +2,13 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Tests\Integration\DataProcessor\ValueModifier;
 
+use DigitalMarketingFramework\Collector\Core\DataProcessor\ValueModifier\MaskedValueModifier;
 use DigitalMarketingFramework\Collector\Core\Tests\Integration\DataProcessor\DataProcessorPluginTestTrait;
 use DigitalMarketingFramework\Collector\Core\Tests\Unit\DataProcessor\ValueModifier\MaskedValueModifierTest as MaskedValueModifierUnitTest;
 use DigitalMarketingFramework\Core\Tests\Integration\DataProcessor\ValueModifier\ValueModifierTestBase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @covers \DigitalMarketingFramework\Collector\Core\DataProcessor\ValueModifier\MaskedValueModifier
- */
+#[CoversClass(MaskedValueModifier::class)]
 class MaskedValueModifierTest extends ValueModifierTestBase
 {
     use DataProcessorPluginTestTrait;
