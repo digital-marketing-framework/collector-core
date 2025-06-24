@@ -1,6 +1,6 @@
 <?php
 
-namespace DigitalMarketingFramework\Collector\Core\Service;
+namespace DigitalMarketingFramework\Collector\Core\InvalidIdentifier;
 
 use DigitalMarketingFramework\Core\Context\ContextInterface;
 
