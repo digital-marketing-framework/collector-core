@@ -78,7 +78,7 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface, Logge
     public function getContentModifierPlugins(bool $frontend = false): array
     {
         $plugins = [];
-        foreach ($this->endPointStorage->getAllEndPoints() as $endPoint) {
+        foreach ($this->endPointStorage->fetchAll() as $endPoint) {
             if (!$this->endPointAllowed($endPoint, $frontend)) {
                 continue;
             }
@@ -131,7 +131,7 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface, Logge
     public function getUserDataSets(bool $frontend = false): array
     {
         $sets = [];
-        foreach ($this->endPointStorage->getAllEndPoints() as $endPoint) {
+        foreach ($this->endPointStorage->fetchAll() as $endPoint) {
             if (!$this->endPointAllowed($endPoint, $frontend)) {
                 continue;
             }
