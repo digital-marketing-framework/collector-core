@@ -24,4 +24,8 @@ class StaticInvalidIdentifierHandler extends InvalidIdentifierHandler
     protected function setInvalidRequestCount(int $invalidRequestCount): void
     {
     }
+
+    public function cleanup(): void
+    {
+    }
 }

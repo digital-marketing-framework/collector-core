@@ -107,4 +107,13 @@ class CountingInvalidIdentifierHandler extends InvalidIdentifierHandler implemen
             }
         }
     }
+
+    public function cleanup(): void
+    {
+        $expireTimestamp = time() - $this->getSettings()->getTimeout();
+        $results = $this->invalidRequestStorage->fetchExpired($expireTimestamp);
+        foreach ($results as $result) {
+            $this->invalidRequestStorage->remove($result);
+        }
+    }
 }
