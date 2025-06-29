@@ -1,6 +1,6 @@
 <?php
 
-namespace DigitalMarketingFramework\Collector\Core\Service;
+namespace DigitalMarketingFramework\Collector\Core\InvalidIdentifier;
 
 class StaticInvalidIdentifierHandler extends InvalidIdentifierHandler
 {
@@ -22,6 +22,10 @@ class StaticInvalidIdentifierHandler extends InvalidIdentifierHandler
     }
 
     protected function setInvalidRequestCount(int $invalidRequestCount): void
+    {
+    }
+
+    public function cleanup(): void
     {
     }
 }

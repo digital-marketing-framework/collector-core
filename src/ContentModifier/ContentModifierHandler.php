@@ -49,7 +49,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
         $endPointContainerSchema->getRenderingDefinition()->setLabel('End point: {type}');
         $endPointContainerSchema->getTypeSchema()->getRenderingDefinition()->setLabel('End point');
 
-        $endPoints = $this->endPointStorage->getAllEndPoints();
+        $endPoints = $this->endPointStorage->fetchAll();
         foreach ($endPoints as $endPoint) {
             if (!$endPoint->getEnabled() || !$endPoint->getExposeToFrontend() || (!$endPoint->getPullEnabled() && !$endPoint->getPushEnabled())) {
                 continue;
@@ -167,7 +167,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
                 $endPoint = $endPoints[$endPointName];
                 $endPointConfiguration = $endPointConfigurations[$endPointName];
             } else {
-                $endPoint = $this->endPointStorage->getEndPointByName($endPointName);
+                $endPoint = $this->endPointStorage->fetchByName($endPointName);
                 if (!$endPoint instanceof EndPointInterface) {
                     throw new DigitalMarketingFrameworkException(sprintf('End point with name "%s" not found.', $endPointName));
                 }

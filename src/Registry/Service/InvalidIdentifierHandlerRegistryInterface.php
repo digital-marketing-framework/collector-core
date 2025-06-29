@@ -2,7 +2,7 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Registry\Service;
 
-use DigitalMarketingFramework\Collector\Core\Service\InvalidIdentifierHandlerInterface;
+use DigitalMarketingFramework\Collector\Core\InvalidIdentifier\InvalidIdentifierHandlerInterface;
 
 interface InvalidIdentifierHandlerRegistryInterface
 {

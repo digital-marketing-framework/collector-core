@@ -2,8 +2,8 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Registry\Service;
 
-use DigitalMarketingFramework\Collector\Core\Service\InvalidIdentifierHandlerInterface;
-use DigitalMarketingFramework\Collector\Core\Service\StaticInvalidIdentifierHandler;
+use DigitalMarketingFramework\Collector\Core\InvalidIdentifier\InvalidIdentifierHandlerInterface;
+use DigitalMarketingFramework\Collector\Core\InvalidIdentifier\StaticInvalidIdentifierHandler;
 
 trait InvalidIdentifierHandlerRegistryTrait
 {

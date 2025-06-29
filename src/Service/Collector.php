@@ -2,6 +2,7 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Service;
 
+use DigitalMarketingFramework\Collector\Core\InvalidIdentifier\InvalidIdentifierHandlerInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Result\InboundRouteResult;
 use DigitalMarketingFramework\Collector\Core\Model\Result\InboundRouteResultInterface;

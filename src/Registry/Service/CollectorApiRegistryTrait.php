@@ -120,7 +120,7 @@ trait CollectorApiRegistryTrait
         $settings = parent::getFrontendSettings();
         $configurationDocumentManager = $this->getConfigurationDocumentManager();
         $endPointStorage = $this->getEndPointStorage();
-        foreach ($endPointStorage->getAllEndPoints() as $endPoint) {
+        foreach ($endPointStorage->fetchAll() as $endPoint) {
             if (!$endPoint->getEnabled() || !$endPoint->getPullEnabled() || !$endPoint->getExposeToFrontend()) {
                 continue;
             }
