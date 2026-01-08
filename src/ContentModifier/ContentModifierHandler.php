@@ -240,7 +240,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
                 if (is_scalar($value)) {
                     if (isset($settings[$key])) {
                         $valueList = explode(',', (string)$settings[$key]);
-                        if (!in_array($value, $valueList)) {
+                        if (!in_array($value, $valueList, true)) {
                             $valueList[] = $value;
                             $settings[$key] = implode(',', $valueList);
                         }

@@ -27,9 +27,6 @@ class MaskedValueModifierTest extends ValueModifierTestBase
         ],
     ];
 
-    /**
-     * @return array<array{string|array<string>|null,string|array<string>|null}>
-     */
     public static function modifyProvider(): array
     {
         return static::MODIFY_TEST_CASES;
