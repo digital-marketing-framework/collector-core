@@ -125,7 +125,8 @@ trait CollectorApiRegistryTrait
                 continue;
             }
 
-            $configuration = new CollectorConfiguration($configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument()));
+            $schemaDocument = $this->getConfigurationSchemaDocument();
+            $configuration = new CollectorConfiguration($configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument(), $schemaDocument));
             $this->addContentModifierFrontendSettings($settings, $endPoint, $configuration);
             $this->addDataTransformationFrontendSettings($settings, $endPoint, $configuration);
         }
