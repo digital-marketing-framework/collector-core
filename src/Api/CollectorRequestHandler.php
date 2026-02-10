@@ -42,7 +42,8 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface, Logge
 
     protected function getConfiguration(EndPointInterface $endPoint): CollectorConfigurationInterface
     {
-        $configStack = $this->configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument());
+        $schemaDocument = $this->registry->getConfigurationSchemaDocument();
+        $configStack = $this->configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument(), $schemaDocument);
 
         return new CollectorConfiguration($configStack);
     }

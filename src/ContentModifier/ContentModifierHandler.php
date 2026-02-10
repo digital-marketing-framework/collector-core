@@ -68,7 +68,8 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
             $endPointSchema = new SwitchSchema('endPoint/' . $endPoint->getName() . '/contentModifier');
             $endPointSchema->getTypeSchema()->getRenderingDefinition()->setLabel('Content Modifier');
 
-            $configStack = $this->configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument());
+            $schemaDocument = $this->registry->getConfigurationSchemaDocument();
+            $configStack = $this->configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument(), $schemaDocument);
             $configuration = new CollectorConfiguration($configStack);
             $contentModifiers = $this->registry->getFrontendContentModifiers($configuration);
 
@@ -172,7 +173,8 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
                     throw new DigitalMarketingFrameworkException(sprintf('End point with name "%s" not found.', $endPointName));
                 }
 
-                $configurationStack = $this->configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument());
+                $schemaDocument = $this->registry->getConfigurationSchemaDocument();
+                $configurationStack = $this->configurationDocumentManager->getConfigurationStackFromDocument($endPoint->getConfigurationDocument(), $schemaDocument);
                 $endPointConfiguration = new Configuration($configurationStack);
 
                 $endPoints[$endPointName] = $endPoint;
