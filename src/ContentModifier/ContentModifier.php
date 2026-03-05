@@ -40,6 +40,8 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
 
     public const KEY_DATA_TRANSFORMATION_ID = 'dataTransformationId';
 
+    public const PERSONA_OTHER = 'other';
+
     protected DataInterface $data;
 
     public function __construct(
@@ -153,6 +155,10 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
             if ($this->dataProcessor->processCondition($condition, $context->copy())) {
                 $result[] = $persona;
             }
+        }
+
+        if ($result === []) {
+            $result[] = static::PERSONA_OTHER;
         }
 
         return $result;
