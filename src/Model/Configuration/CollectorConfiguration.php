@@ -2,6 +2,7 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Model\Configuration;
 
+use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifier;
 use DigitalMarketingFramework\Core\Exception\DigitalMarketingFrameworkException;
 use DigitalMarketingFramework\Core\Model\Configuration\Configuration;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SwitchSchema;
@@ -64,14 +65,42 @@ class CollectorConfiguration extends Configuration implements CollectorConfigura
         return MapUtility::flatten($this->getDataTransformationConfigurationItems())[$transformationName] ?? [];
     }
 
-    public function getDefaultDataTransformationName(): string
+    public function getPersonaGroupConfigurationItems(): array
     {
-        $defaultTransformationId = $this->getPersonalizationConfiguration()[static::KEY_DEFAULT_DATA_TRANSFORMATION] ?? '';
-        if ($defaultTransformationId !== '') {
-            return $this->getDataTransformationName($defaultTransformationId) ?? '';
+        return $this->getPersonalizationConfiguration()[static::KEY_PERSONAS] ?? [];
+    }
+
+    public function personaGroupExists(string $personaGroupId): bool
+    {
+        return isset($this->getPersonaGroupConfigurationItems()[$personaGroupId]);
+    }
+
+    public function getPersonaGroupConfiguration(string $personaGroupId): array
+    {
+        $item = $this->getPersonaGroupConfigurationItems()[$personaGroupId] ?? null;
+        if ($item === null) {
+            return [];
         }
 
-        return '';
+        return MapUtility::getItemValue($item);
+    }
+
+    public function getPersonaList(string $personaGroupId): array
+    {
+        $groupConfig = $this->getPersonaGroupConfiguration($personaGroupId);
+
+        return MapUtility::flatten($groupConfig[static::KEY_PERSONA_LIST] ?? []);
+    }
+
+    public function getPersonaGroupDataTransformationName(string $personaGroupId): ?string
+    {
+        $groupConfig = $this->getPersonaGroupConfiguration($personaGroupId);
+        $id = $groupConfig[ContentModifier::KEY_DATA_TRANSFORMATION_ID] ?? '';
+        if ($id === '') {
+            return null;
+        }
+
+        return $this->getDataTransformationName($id);
     }
 
     /**

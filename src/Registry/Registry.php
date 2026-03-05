@@ -2,6 +2,7 @@
 
 namespace DigitalMarketingFramework\Collector\Core\Registry;
 
+use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifier;
 use DigitalMarketingFramework\Collector\Core\ContentModifier\ContentModifierHandlerAwareInterface;
 use DigitalMarketingFramework\Collector\Core\DataTransformation\DataTransformation;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
@@ -17,8 +18,10 @@ use DigitalMarketingFramework\Collector\Core\SchemaDocument\Schema\Custom\DataTr
 use DigitalMarketingFramework\Collector\Core\Service\CollectorAwareInterface;
 use DigitalMarketingFramework\Core\Registry\Registry as CoreRegistry;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\IntegerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\MapSchema;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\Plugin\DataProcessor\ConditionSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\SchemaInterface;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\StringSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\SchemaDocument;
@@ -75,16 +78,37 @@ class Registry extends CoreRegistry implements RegistryInterface
         $personalizationSchema->getRenderingDefinition()->setIcon(Icon::PERSONALIZATION);
 
         $personalizationSchema->addProperty(
-            CollectorConfigurationInterface::KEY_DEFAULT_DATA_TRANSFORMATION,
-            new DataTransformationReferenceSchema(
-                required: false,
-                firstEmptyOptionLabel: '[None]'
-            )
-        );
-
-        $personalizationSchema->addProperty(
             CollectorConfigurationInterface::KEY_DATA_TRANSFORMATIONS,
             $this->getDataTransformationSchema()
+        );
+
+        $personaGroupSchema = new ContainerSchema();
+
+        $personaGroupTransformationSchema = new DataTransformationReferenceSchema(
+            required: false,
+            firstEmptyOptionLabel: '[Passthrough]'
+        );
+        $personaGroupSchema->addProperty(
+            ContentModifier::KEY_DATA_TRANSFORMATION_ID,
+            $personaGroupTransformationSchema
+        );
+
+        $personaListSchema = new MapSchema(
+            new CustomSchema(ConditionSchema::TYPE),
+            new StringSchema()
+        );
+        $personaListSchema->getRenderingDefinition()->setSkipInNavigation(true);
+        $personaGroupSchema->addProperty(
+            CollectorConfigurationInterface::KEY_PERSONA_LIST,
+            $personaListSchema
+        );
+
+        $personasSchema = new MapSchema($personaGroupSchema, new StringSchema('groupName'));
+        $personasSchema->getRenderingDefinition()->setIcon(Icon::PERSONALIZATION);
+
+        $personalizationSchema->addProperty(
+            CollectorConfigurationInterface::KEY_PERSONAS,
+            $personasSchema
         );
 
         $personalizationSchema->addProperty(

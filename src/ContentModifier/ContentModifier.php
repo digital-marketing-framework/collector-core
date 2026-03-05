@@ -122,6 +122,42 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         return $data;
     }
 
+    /**
+     * Match collected data against centralized persona group definitions.
+     * Applies group-specific data transformation (if configured).
+     *
+     * @return array<string> Names of matching personas
+     */
+    protected function matchPersonas(DataInterface $data, string $personaGroupId): array
+    {
+        if (!$this->collectorConfiguration->personaGroupExists($personaGroupId)) {
+            return [];
+        }
+
+        $transformationName = $this->collectorConfiguration->getPersonaGroupDataTransformationName($personaGroupId);
+        if ($transformationName !== null) {
+            $transformation = $this->registry->getDataTransformation(
+                $transformationName,
+                $this->collectorConfiguration,
+            );
+            if ($transformation->allowed()) {
+                $data = $transformation->transform($data);
+            }
+        }
+
+        $personaList = $this->collectorConfiguration->getPersonaList($personaGroupId);
+        $context = $this->getDataProcessorContext($data);
+        $result = [];
+
+        foreach ($personaList as $persona => $condition) {
+            if ($this->dataProcessor->processCondition($condition, $context->copy())) {
+                $result[] = $persona;
+            }
+        }
+
+        return $result;
+    }
+
     public function invalidIdentifierHandling(): bool
     {
         return true;

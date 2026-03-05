@@ -12,7 +12,9 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
 
     public const KEY_DATA_TRANSFORMATIONS = 'dataTransformations';
 
-    public const KEY_DEFAULT_DATA_TRANSFORMATION = 'defaultTransformation';
+    public const KEY_PERSONAS = 'personas';
+
+    public const KEY_PERSONA_LIST = 'personaList';
 
     public const KEY_CONTENT_MODIFIERS = 'contentModifiers';
 
@@ -58,7 +60,26 @@ interface CollectorConfigurationInterface extends ConfigurationInterface
      */
     public function getDataTransformationConfiguration(string $transformationName): array;
 
-    public function getDefaultDataTransformationName(): string;
+    /**
+     * @return array<string,array{uuid:string,key:string,weight:int,value:array<string,mixed>}>
+     */
+    public function getPersonaGroupConfigurationItems(): array;
+
+    public function personaGroupExists(string $personaGroupId): bool;
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getPersonaGroupConfiguration(string $personaGroupId): array;
+
+    /**
+     * Flattened persona map for a group: name => condition config
+     *
+     * @return array<string,mixed>
+     */
+    public function getPersonaList(string $personaGroupId): array;
+
+    public function getPersonaGroupDataTransformationName(string $personaGroupId): ?string;
 
     public function getContentModifierIdFromName(string $name): ?string;
 
