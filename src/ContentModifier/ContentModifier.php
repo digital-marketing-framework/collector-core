@@ -19,6 +19,7 @@ use DigitalMarketingFramework\Core\Log\LoggerAwareTrait;
 use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
 use DigitalMarketingFramework\Core\Model\Data\Data;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
+use DigitalMarketingFramework\Core\SchemaDocument\Schema\BooleanSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\DataPrivacyPermissionSelectionSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
@@ -76,11 +77,14 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
         ]);
     }
 
+    public function getRequiredPermission(): string
+    {
+        return $this->getStringConfig(static::KEY_REQUIRED_PERMISSION);
+    }
+
     public function allowed(): bool
     {
-        $permission = $this->getConfig(static::KEY_REQUIRED_PERMISSION);
-
-        return $this->dataPrivacyManager->getPermission($permission);
+        return $this->dataPrivacyManager->getPermission($this->getRequiredPermission());
     }
 
     protected function getDataProcessorContext(DataInterface $data): DataProcessorContextInterface
@@ -191,7 +195,12 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
 
     public function getBackendSettingsSchema(SchemaDocument $schemaDocument): SchemaInterface
     {
-        return new ContainerSchema();
+        $schema = new ContainerSchema();
+
+        $markAsLoadingSchema = new BooleanSchema(false);
+        $schema->addProperty('markAsLoading', $markAsLoadingSchema);
+
+        return $schema;
     }
 
     public function getBackendData(array $settings): array

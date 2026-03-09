@@ -10,9 +10,23 @@ abstract class FrontendContentModifier extends ContentModifier implements Fronte
 {
     abstract public function getFrontendData(DataInterface $data, array $arguments): array|false;
 
+    public function passPermissionRequirementsToFrontend(): bool
+    {
+        return true;
+    }
+
     public function getFrontendSettings(): array
     {
-        return [];
+        $settings = [];
+
+        if ($this->passPermissionRequirementsToFrontend()) {
+            $requiredPermission = $this->getRequiredPermission();
+            if ($requiredPermission !== '') {
+                $settings['requiredPermission'] = $requiredPermission;
+            }
+        }
+
+        return $settings;
     }
 
     public function getContentSpecificFrontendSettings(string $id, array $settings): array

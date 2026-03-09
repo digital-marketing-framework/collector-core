@@ -16,6 +16,12 @@ interface FrontendContentModifierInterface extends ContentModifierInterface
     public function getFrontendData(DataInterface $data, array $arguments): array|false;
 
     /**
+     * Whether to include requiredPermission in frontend settings.
+     * Override and return false to opt out of client-side permission checking.
+     */
+    public function passPermissionRequirementsToFrontend(): bool;
+
+    /**
      * General frontend settings for the content modifier
      *
      * @return array<string,mixed>
