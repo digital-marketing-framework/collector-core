@@ -19,7 +19,6 @@ use DigitalMarketingFramework\Core\Log\LoggerAwareTrait;
 use DigitalMarketingFramework\Core\Model\Api\EndPointInterface;
 use DigitalMarketingFramework\Core\Model\Data\Data;
 use DigitalMarketingFramework\Core\Model\Data\DataInterface;
-use DigitalMarketingFramework\Core\SchemaDocument\Schema\BooleanSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\ContainerSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\Custom\DataPrivacyPermissionSelectionSchema;
 use DigitalMarketingFramework\Core\SchemaDocument\Schema\CustomSchema;
@@ -195,12 +194,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
 
     public function getBackendSettingsSchema(SchemaDocument $schemaDocument): SchemaInterface
     {
-        $schema = new ContainerSchema();
-
-        $markAsLoadingSchema = new BooleanSchema(false);
-        $schema->addProperty('markAsLoading', $markAsLoadingSchema);
-
-        return $schema;
+        return new ContainerSchema();
     }
 
     public function getBackendData(array $settings): array
