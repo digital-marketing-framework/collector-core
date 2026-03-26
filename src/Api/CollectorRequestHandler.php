@@ -3,6 +3,7 @@
 namespace DigitalMarketingFramework\Collector\Core\Api;
 
 use DigitalMarketingFramework\Collector\Core\ContentModifier\FrontendContentModifierInterface;
+use DigitalMarketingFramework\Collector\Core\DataTransformation\DataTransformationInterface;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfiguration;
 use DigitalMarketingFramework\Collector\Core\Model\Configuration\CollectorConfigurationInterface;
 use DigitalMarketingFramework\Collector\Core\Registry\RegistryInterface;
@@ -142,7 +143,7 @@ class CollectorRequestHandler implements CollectorRequestHandlerInterface, Logge
             foreach ($items as $item) {
                 $keyword = MapUtility::getItemKey($item);
                 $transformation = $this->registry->getDataTransformation($keyword, $configuration, true);
-                if ($transformation->allowed()) {
+                if ($transformation->getVisibility() === DataTransformationInterface::VISIBILITY_PUBLIC) {
                     $sets[$endPoint->getName()][] = $keyword;
                 }
             }
