@@ -9,10 +9,12 @@ trait InvalidIdentifierHandlerRegistryTrait
 {
     protected InvalidIdentifierHandlerInterface $invalidIdentifierHandler;
 
+    abstract public function createObject(string $class, array $arguments = []): object;
+
     public function getInvalidIdentifierHandler(): InvalidIdentifierHandlerInterface
     {
         if (!isset($this->invalidIdentifierHandler)) {
-            $this->invalidIdentifierHandler = new StaticInvalidIdentifierHandler();
+            $this->invalidIdentifierHandler = $this->createObject(StaticInvalidIdentifierHandler::class);
         }
 
         return $this->invalidIdentifierHandler;
