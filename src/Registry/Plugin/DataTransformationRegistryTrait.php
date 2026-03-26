@@ -29,9 +29,12 @@ trait DataTransformationRegistryTrait
         foreach ($items as $item) {
             $keyword = MapUtility::getItemKey($item);
             $transformation = $this->getDataTransformation($keyword, $collectorConfiguration, $public);
-            if ($transformation->allowed()) {
-                $result[] = $keyword;
+
+            if ($public && $transformation->getVisibility() !== DataTransformationInterface::VISIBILITY_PUBLIC) {
+                continue;
             }
+
+            $result[] = $keyword;
         }
 
         return $result;
