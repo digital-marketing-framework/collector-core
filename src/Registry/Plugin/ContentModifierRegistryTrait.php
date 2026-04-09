@@ -56,7 +56,13 @@ trait ContentModifierRegistryTrait
         $configuration = CollectorConfiguration::convert($configuration);
         $contentModifiers = [];
         foreach ($configuration->getContentModifierIds() as $contentModifierId) {
-            $contentModifiers[$configuration->getContentModifierName($contentModifierId)] = $this->getContentModifier($configuration, $contentModifierId);
+            $contentModifier = $this->getContentModifier($configuration, $contentModifierId);
+            if (!$contentModifier instanceof ContentModifierInterface) {
+                $this->getLoggerFactory()->getLogger(static::class)->error(sprintf('Content modifier "%s" could not be resolved.', $configuration->getContentModifierKeyword($contentModifierId)));
+                continue;
+            }
+
+            $contentModifiers[$configuration->getContentModifierName($contentModifierId)] = $contentModifier;
         }
 
         return $contentModifiers;
