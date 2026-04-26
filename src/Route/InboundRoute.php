@@ -160,6 +160,7 @@ abstract class InboundRoute extends IntegrationPlugin implements InboundRouteInt
         $schema->addProperty(static::KEY_PRIORITY, $prioritySchema);
 
         $cacheLifetimeSchema = new InheritableIntegerSchema();
+        $cacheLifetimeSchema->setLabel('Cache lifetime (seconds)');
         $cacheLifetimeSchema->addReference(
             sprintf(
                 '/%s/%s/%s/%s',
