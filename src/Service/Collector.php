@@ -159,19 +159,20 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
                     continue;
                 }
 
-                $identifiers = [$identifier];
                 $data = $cacheTimeoutInSeconds > 0 ? $this->lookup($identifier) : null;
                 if (!$data instanceof DataInterface) {
                     $inboundRouteResult = $this->fetch($keyword, $identifier, $configuration);
                     $identifiers = $inboundRouteResult->getIdentifiers();
                     $data = $inboundRouteResult->getData();
+
+                    // Store only on a fresh fetch: the cache timeout is an absolute max-age for the
+                    // data, not an idle timeout that a cache hit would renew.
+                    if ($data instanceof DataInterface && $cacheTimeoutInSeconds > 0) {
+                        $this->save($data, $identifiers, $cacheTimeoutInSeconds);
+                    }
                 }
 
                 if ($data instanceof DataInterface) {
-                    if ($cacheTimeoutInSeconds > 0) {
-                        $this->save($data, $identifiers, $cacheTimeoutInSeconds);
-                    }
-
                     $result = CacheUtility::mergeData([$result, $data], override: false);
                 }
             } catch (InvalidIdentifierException $e) {
