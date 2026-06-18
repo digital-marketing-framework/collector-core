@@ -20,4 +20,8 @@ interface InboundRouteResultInterface
      * @param array<IdentifierInterface> $identifiers
      */
     public function setIdentifiers(array $identifiers): void;
+
+    public function isCacheable(): bool;
+
+    public function setCacheable(bool $cacheable): void;
 }

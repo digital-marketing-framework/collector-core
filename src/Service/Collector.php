@@ -50,10 +50,11 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
         }
 
         $result = $inboundRoute->getData($identifier);
-        // "no result" can be cached too, as empty result
-        // TODO can it? should it?
         if (!$result instanceof InboundRouteResultInterface) {
-            $result = new InboundRouteResult(new Data(), [$identifier]);
+            // A missing route result means "no data right now", which includes transient
+            // causes such as an unreachable source. The empty stand-in is not cacheable, so
+            // the next request retries the route instead of being served a cached blank.
+            $result = new InboundRouteResult(new Data(), [$identifier], cacheable: false);
         }
 
         return $result;
@@ -166,8 +167,10 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
                     $data = $inboundRouteResult->getData();
 
                     // Store only on a fresh fetch: the cache timeout is an absolute max-age for the
-                    // data, not an idle timeout that a cache hit would renew.
-                    if ($data instanceof DataInterface && $cacheTimeoutInSeconds > 0) {
+                    // data, not an idle timeout that a cache hit would renew. A route can also mark
+                    // an individual result as non-cacheable, e.g. user-specific data that is not
+                    // worth caching while its anonymous counterpart is.
+                    if ($data instanceof DataInterface && $cacheTimeoutInSeconds > 0 && $inboundRouteResult->isCacheable()) {
                         $this->save($data, $identifiers, $cacheTimeoutInSeconds);
                     }
                 }

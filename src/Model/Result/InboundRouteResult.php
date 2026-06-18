@@ -13,6 +13,7 @@ class InboundRouteResult implements InboundRouteResultInterface
     public function __construct(
         protected ?DataInterface $data,
         protected array $identifiers,
+        protected bool $cacheable = true,
     ) {
     }
 
@@ -34,5 +35,15 @@ class InboundRouteResult implements InboundRouteResultInterface
     public function setIdentifiers(array $identifiers): void
     {
         $this->identifiers = $identifiers;
+    }
+
+    public function isCacheable(): bool
+    {
+        return $this->cacheable;
+    }
+
+    public function setCacheable(bool $cacheable): void
+    {
+        $this->cacheable = $cacheable;
     }
 }
