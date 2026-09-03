@@ -11,9 +11,7 @@ trait ContentModifierHandlerRegistryTrait
 
     public function getContentModifierHandler(): ContentModifierHandlerInterface
     {
-        if (!isset($this->contentModifierHandler)) {
-            $this->contentModifierHandler = $this->createObject(ContentModifierHandler::class, [$this]);
-        }
+        $this->contentModifierHandler ??= $this->createObject(ContentModifierHandler::class, [$this]);
 
         return $this->contentModifierHandler;
     }

@@ -13,9 +13,7 @@ trait CollectorRegistryTrait
 
     public function getCollector(): CollectorInterface
     {
-        if (!isset($this->collector)) {
-            $this->collector = $this->createObject(Collector::class, [$this]);
-        }
+        $this->collector ??= $this->createObject(Collector::class, [$this]);
 
         return $this->collector;
     }

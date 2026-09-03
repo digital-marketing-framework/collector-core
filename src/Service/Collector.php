@@ -54,7 +54,7 @@ class Collector implements CollectorInterface, DataCacheAwareInterface, ContextA
             // A missing route result means "no data right now", which includes transient
             // causes such as an unreachable source. The empty stand-in is not cacheable, so
             // the next request retries the route instead of being served a cached blank.
-            $result = new InboundRouteResult(new Data(), [$identifier], cacheable: false);
+            return new InboundRouteResult(new Data(), [$identifier], cacheable: false);
         }
 
         return $result;
