@@ -121,7 +121,7 @@ abstract class ContentModifier extends ConfigurablePlugin implements ContentModi
             $this->dataTransformationMustBePublic()
         );
         if ($transformation->allowed()) {
-            $data = $transformation->transform($data);
+            return $transformation->transform($data);
         }
 
         return $data;

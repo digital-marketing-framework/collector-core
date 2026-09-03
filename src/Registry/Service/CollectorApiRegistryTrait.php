@@ -23,9 +23,7 @@ trait CollectorApiRegistryTrait
 
     public function getCollectorApiRouteResolver(): CollectorRouteResolverInterface
     {
-        if (!isset($this->collectorRouteResolver)) {
-            $this->collectorRouteResolver = $this->createObject(CollectorRouteResolver::class, [$this]);
-        }
+        $this->collectorRouteResolver ??= $this->createObject(CollectorRouteResolver::class, [$this]);
 
         return $this->collectorRouteResolver;
     }
@@ -39,9 +37,7 @@ trait CollectorApiRegistryTrait
 
     public function getCollectorRequestHandler(): CollectorRequestHandlerInterface
     {
-        if (!isset($this->collectorRequestHandler)) {
-            $this->collectorRequestHandler = $this->createObject(CollectorRequestHandler::class, [$this]);
-        }
+        $this->collectorRequestHandler ??= $this->createObject(CollectorRequestHandler::class, [$this]);
 
         return $this->collectorRequestHandler;
     }

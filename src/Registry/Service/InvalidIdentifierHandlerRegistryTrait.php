@@ -13,9 +13,7 @@ trait InvalidIdentifierHandlerRegistryTrait
 
     public function getInvalidIdentifierHandler(): InvalidIdentifierHandlerInterface
     {
-        if (!isset($this->invalidIdentifierHandler)) {
-            $this->invalidIdentifierHandler = $this->createObject(StaticInvalidIdentifierHandler::class);
-        }
+        $this->invalidIdentifierHandler ??= $this->createObject(StaticInvalidIdentifierHandler::class);
 
         return $this->invalidIdentifierHandler;
     }

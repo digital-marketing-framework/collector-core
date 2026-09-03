@@ -43,7 +43,7 @@ class CountingInvalidIdentifierHandler extends InvalidIdentifierHandler implemen
         $maxPenalty = $this->getSettings()->getMaxPenalty();
         $penalty = $invalidRequestCount * $this->getSettings()->getPenaltyPerAttempt();
         if ($penalty > $maxPenalty) {
-            $penalty = $maxPenalty;
+            return $maxPenalty;
         }
 
         return $penalty;
