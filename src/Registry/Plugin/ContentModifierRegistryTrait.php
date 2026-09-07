@@ -98,7 +98,7 @@ trait ContentModifierRegistryTrait
         $mapKeySchema = new StringSchema('modifierName');
         $mapKeySchema->getRenderingDefinition()->setLabel('Modifier Name');
         $mapValueSchema = new CustomSchema(ContentModifierSchema::TYPE);
-        $mapValueSchema->getRenderingDefinition()->setLabel('{type} {../key}');
+        $mapValueSchema->getRenderingDefinition()->setLabel('{pretty(type)} {pretty(../key)}');
         $contentModifierMapSchema = new MapSchema($mapValueSchema, $mapKeySchema);
         $contentModifierMapSchema->getRenderingDefinition()->setIcon(Icon::CONTENT_MODIFIERS);
         $contentModifierMapSchema->setDynamicOrder(true);

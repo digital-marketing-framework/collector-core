@@ -24,6 +24,6 @@ class PersonaGroupReferenceSchema extends ReferenceSchema
 
     protected function getLabel(): string
     {
-        return '{' . MapUtility::KEY_KEY . '}';
+        return '{pretty(' . MapUtility::KEY_KEY . ')}';
     }
 }
