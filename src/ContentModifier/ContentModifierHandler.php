@@ -46,7 +46,7 @@ class ContentModifierHandler implements ContentModifierHandlerInterface, EndPoin
         $endPointContainerSchema = new SwitchSchema('endPoint');
         // TODO label processing currently does not support nested path patterns
         // $endPointContainerSchema->getRenderingDefinition()->setLabel('End point: {type}, modifier: {config/{type}/type}');
-        $endPointContainerSchema->getRenderingDefinition()->setLabel('End point: {type}');
+        $endPointContainerSchema->getRenderingDefinition()->setLabel('End point: {pretty(type)}');
         $endPointContainerSchema->getTypeSchema()->getRenderingDefinition()->setLabel('End point');
 
         $endPoints = $this->endPointStorage->fetchAll();
