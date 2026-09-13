@@ -49,7 +49,7 @@ trait InboundRouteRegistryTrait
 
             $fields = $class::getDefaultFields();
             if ($fields !== []) {
-                $fieldListDefinition = new FieldListDefinition(sprintf('collector.in.defaults.%s.%s', $integrationInfo->getName(), $keyword));
+                $fieldListDefinition = new FieldListDefinition(sprintf('collector.in.defaults.%s.%s', $integrationInfo->getName(), $keyword), label: $label);
                 foreach ($fields as $field) {
                     if (!$field instanceof FieldDefinition) {
                         $field = new FieldDefinition($field);
